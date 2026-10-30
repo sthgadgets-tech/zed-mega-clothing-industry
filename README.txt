@@ -10,7 +10,7 @@ Public pages
 - /quote — quote request form (Vercel function sends email once Resend env vars are configured)
 
 Local admin prototype
-- Sign in at /admin/login. Demo credentials: username "admin", password "admin123".
+- Sign in at /admin/login with ADMIN_USERNAME / ADMIN_PASSWORD set in the Vercel environment variables (checked by api/admin-login.ts).
 - These credentials are in the JavaScript bundle (src/admin/auth.ts), so anyone can read them from the source. The gate only keeps casual visitors out of this browser's admin screens. It does not protect data. Replace it with server-verified authentication (for example Supabase Auth) before using the admin for real content.
 - Open /admin for the dashboard after signing in. Other pages: /admin/homepage, /admin/categories, /admin/media, /admin/faq, and /admin/settings.
 - This is a LOCAL PREVIEW ONLY. There is no secure admin login, cloud database, persistent media storage, audit log, or publishing to the public website.

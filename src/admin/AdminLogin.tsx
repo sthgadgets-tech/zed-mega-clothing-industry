@@ -24,17 +24,22 @@ export function AdminLogin() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
 
   if (isSignedIn()) return <Navigate to="/admin" replace />
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+    if (submitting) return
     if (!username.trim() || !password) {
       setError('Enter your username and password.')
       return
     }
-    if (!signIn(username, password)) {
-      setError('Incorrect username or password.')
+    setSubmitting(true)
+    const result = await signIn(username, password)
+    setSubmitting(false)
+    if (!result.ok) {
+      setError(result.error)
       setPassword('')
       return
     }
@@ -52,7 +57,6 @@ export function AdminLogin() {
           </div>
         </div>
         <h1>Sign in</h1>
-        <p className="admin-login-note">Local preview sign-in. It is a browser-side gate, not secure server authentication.</p>
 
         <label className="admin-field">
           <span>Username</span>
@@ -71,7 +75,7 @@ export function AdminLogin() {
 
         {error && <p className="admin-login-error" role="alert"><ShieldAlert size={15} /> {error}</p>}
 
-        <button type="submit" className="admin-button admin-button-primary admin-login-submit"><LockKeyhole size={16} /> Sign in</button>
+        <button type="submit" className="admin-button admin-button-primary admin-login-submit" disabled={submitting}><LockKeyhole size={16} /> {submitting ? 'Signing in…' : 'Sign in'}</button>
       </form>
     </main>
   )

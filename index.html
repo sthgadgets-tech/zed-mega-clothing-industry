@@ -5,14 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ZED MEGA Clothing Industry | Custom Sportswear and Activewear, Sialkot</title>
     <meta name="description" content="Custom sportswear and activewear manufacturer in Sialkot, Pakistan. Team uniforms and private-label apparel made to your design, from 50 pieces per style." />
-    <link rel="icon" type="image/jpeg" href="/images/logo-shield.jpg" />
+    <link rel="icon" type="image/webp" href="/images/logo-shield.webp" />
     <link rel="preload" href="/audio/zedmega-intro.mp3" as="audio" type="audio/mpeg" />
+    <link rel="preload" href="/images/zedmega-logo.webp" as="image" type="image/webp" fetchpriority="high" />
+    <link rel="preload" href="/images/texture-blue.webp" as="image" type="image/webp" />
+    <meta name="theme-color" content="#06132b" />
   </head>
   <body>
-    <audio id="zedmega-intro-audio" src="/audio/zedmega-intro.mp3" preload="auto" autoplay playsinline style="display:none"></audio>
+    <audio id="zedmega-intro-audio" src="/audio/zedmega-intro.mp3" preload="auto" playsinline style="display:none"></audio>
     <script>
       (function() {
         try {
+          if (localStorage.getItem('zedmega-intro-seen') === '1') return;
           var a = document.getElementById('zedmega-intro-audio');
           if (!a) return;
           a.volume = 1;

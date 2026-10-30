@@ -195,7 +195,6 @@ function Hero() {
   return (
     <section className="hero">
       <div className="hero-texture" />
-      <div className="hero-accent-beam" />
       <div className="container hero-container">
         <div className="hero-grid">
           <div className="hero-content">
@@ -213,34 +212,21 @@ function Hero() {
             </div>
           </div>
 
-          <div className="hero-badge-card">
-            <div className="hbc-top">
-              <span className="hbc-pill">
-                <Sparkles size={13} />
-                <span>Direct Factory Production</span>
-              </span>
-              <span className="hbc-origin">Sialkot · PK</span>
-            </div>
-            <h3>Engineered For Athletic Champions</h3>
-            <p>From pro sublimation to heavyweight fleece and technical knits, we build apparel to your commercial specs.</p>
-            <div className="hbc-stats">
-              <div className="hbc-stat">
-                <strong>50 PCS</strong>
-                <span>Low Minimum Order</span>
-              </div>
-              <div className="hbc-stat">
-                <strong>~7 DAYS</strong>
-                <span>Fast Sampling</span>
-              </div>
-              <div className="hbc-stat">
-                <strong>100%</strong>
-                <span>Custom Tech Pack</span>
-              </div>
-              <div className="hbc-stat">
-                <strong>GLOBAL</strong>
-                <span>Air Express Shipping</span>
-              </div>
-            </div>
+          <div className="hero-collage" aria-hidden="true">
+            {[
+              ['product-11', 'Soccer kits'],
+              ['product-04', 'Basketball'],
+              ['product-14', 'Hoodie sets'],
+              ['product-45', 'Cheerleading'],
+              ['product-42', 'Tracksuits'],
+              ['product-29', 'Cricket kits'],
+            ].map(([img, label]) => (
+              <figure key={img} className="hc-tile">
+                <img src={`/images/products/${img}.webp`} alt="" decoding="async" />
+                <figcaption>{label}</figcaption>
+              </figure>
+            ))}
+            <span className="hc-badge"><img src="/images/logo-shield.webp" alt="" className="hc-logo" /></span>
           </div>
         </div>
       </div>
@@ -640,14 +626,34 @@ function QuoteCTA() {
             <a className="button button-outline" href={inquiryMailto()}>Email your brief <Mail size={17} /></a>
           </div>
         </div>
-        <div className="cta-visual" aria-hidden="true">
-          <span className="cta-ring cta-ring-1" />
-          <span className="cta-ring cta-ring-2" />
-          <span className="cta-ring cta-ring-3" />
-          <img loading="lazy" decoding="async" src="/images/logo-shield.webp" alt="" className="cta-logo" />
-          <span className="cta-chip cta-chip-1"><strong>50</strong> pcs MOQ</span>
-          <span className="cta-chip cta-chip-2"><strong>7</strong> day samples</span>
-          <span className="cta-chip cta-chip-3"><Globe2 size={14} /> Worldwide</span>
+        <div className="hero-badge-card">
+          <div className="hbc-top">
+            <span className="hbc-pill">
+              <Sparkles size={13} />
+              <span>Direct Factory Production</span>
+            </span>
+            <span className="hbc-origin">Sialkot · PK</span>
+          </div>
+          <h3>Engineered For Athletic Champions</h3>
+          <p>From pro sublimation to heavyweight fleece and technical knits, we build apparel to your commercial specs.</p>
+          <div className="hbc-stats">
+            <div className="hbc-stat">
+              <strong>50 PCS</strong>
+              <span>Low Minimum Order</span>
+            </div>
+            <div className="hbc-stat">
+              <strong>~7 DAYS</strong>
+              <span>Fast Sampling</span>
+            </div>
+            <div className="hbc-stat">
+              <strong>100%</strong>
+              <span>Custom Tech Pack</span>
+            </div>
+            <div className="hbc-stat">
+              <strong>GLOBAL</strong>
+              <span>Air Express Shipping</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>

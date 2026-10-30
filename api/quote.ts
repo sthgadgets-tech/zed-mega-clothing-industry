@@ -3,6 +3,9 @@
 //   RESEND_API_KEY   API key for the Resend email service
 //   QUOTE_FROM       Verified sender, e.g. "ZED MEGA <quotes@yourdomain.com>"
 //   QUOTE_ADMIN_TO   Address that receives new quote requests
+//   MONGODB_URI      Optional; when set, every request is also saved (see _db.ts)
+
+import { getDb } from './_db'
 
 type QuoteInput = {
   name: string
@@ -71,6 +74,17 @@ export async function handleQuote(request: Request): Promise<Response> {
   }
   if (!parsed.data) return Response.json({ error: parsed.error }, { status: 400 })
   const q = parsed.data
+
+  // Save first so a request is never lost if email fails. A database outage must not block the quote.
+  if (process.env.MONGODB_URI) {
+    try {
+      const db = await getDb()
+      await db.collection('quotes').insertOne({ ...q, status: 'new', createdAt: new Date() })
+    } catch (error) {
+      console.error('Could not save quote to MongoDB', error)
+    }
+  }
+
   const rows = [
     ['Name', q.name], ['Company', q.company || '-'], ['Email', q.email], ['Phone', q.phone || '-'],
     ['Product', q.product], ['Quantity', `${q.quantity} pieces`], ['Details', q.details],

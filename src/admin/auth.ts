@@ -1,30 +1,42 @@
-// Browser-side sign-in gate for the local admin preview.
-// The credentials below ship inside the JavaScript bundle, so anyone who opens the
-// site source can read them. This keeps casual visitors out of /admin in this
-// browser. It does not protect data, and it must not be used for real content
-// management. Use Supabase Auth or another server-verified login before going live.
-
-export const ADMIN_USERNAME = 'admin'
-export const ADMIN_PASSWORD = 'admin123'
+// Admin sign-in. Credentials are checked on the server by /api/admin-login against
+// the ADMIN_USERNAME and ADMIN_PASSWORD environment variables; nothing secret ships
+// in this bundle. The browser only keeps the signed session token it gets back.
 
 const SESSION_KEY = 'zedmega-admin-session'
 
-export function isSignedIn(): boolean {
+export function getToken(): string | null {
   try {
-    return window.sessionStorage.getItem(SESSION_KEY) === 'active'
+    const token = window.sessionStorage.getItem(SESSION_KEY)
+    if (!token || Number(token.split('.')[0]) < Date.now()) return null
+    return token
   } catch {
-    return false
+    return null
   }
 }
 
-export function signIn(username: string, password: string): boolean {
-  if (username.trim() !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) return false
+export function isSignedIn(): boolean {
+  return getToken() !== null
+}
+
+export async function signIn(username: string, password: string): Promise<{ ok: true } | { ok: false; error: string }> {
+  let response: Response
   try {
-    window.sessionStorage.setItem(SESSION_KEY, 'active')
+    response = await fetch('/api/admin-login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: username.trim(), password }),
+    })
   } catch {
-    return false
+    return { ok: false, error: 'Could not reach the server. Check your connection.' }
   }
-  return true
+  const data = (await response.json().catch(() => ({}))) as { token?: string; error?: string }
+  if (!response.ok || !data.token) return { ok: false, error: data.error || 'Sign-in failed.' }
+  try {
+    window.sessionStorage.setItem(SESSION_KEY, data.token)
+  } catch {
+    return { ok: false, error: 'This browser blocked session storage.' }
+  }
+  return { ok: true }
 }
 
 export function signOut(): void {

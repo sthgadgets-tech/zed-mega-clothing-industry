@@ -13,11 +13,19 @@ const RING_LENGTH = 100
 
 type Phase = 'loading' | 'exit' | 'done'
 
+// The intro plays once per browser; returning visitors go straight to the site.
+const SEEN_KEY = 'zedmega-intro-seen'
+function hasSeenIntro() {
+  try { return localStorage.getItem(SEEN_KEY) === '1' } catch { return false }
+}
+
 export function LogoLoader() {
-  const [phase, setPhase] = useState<Phase>('loading')
+  const [phase, setPhase] = useState<Phase>(() => hasSeenIntro() ? 'done' : 'loading')
   const [progress, setProgress] = useState(1)
 
   useEffect(() => {
+    if (phase === 'done') return
+    try { localStorage.setItem(SEEN_KEY, '1') } catch { /* storage blocked: intro just plays again */ }
     document.body.classList.add('is-loading')
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const startedAt = performance.now()

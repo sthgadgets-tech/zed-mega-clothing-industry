@@ -314,6 +314,9 @@ export function ProductCarousel() {
   const [isPaused, setIsPaused] = useState(false)
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   const trackRef = useRef<HTMLDivElement>(null)
+  // Phones get a shorter marquee: ~200 animated images is heavy on mobile CPUs.
+  const [isSmall] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches)
+  const marqueeSlots = Array.from({ length: (isSmall ? 12 : allImages.length) * 2 })
 
   const filteredProducts = activeTab === 'all'
     ? showcaseProducts
@@ -492,8 +495,8 @@ export function ProductCarousel() {
           </div>
           <div className="marquee-track-wrapper">
             <div className="marquee-track marquee-row-a">
-              {allImages.concat(allImages).map((src, index) => {
-                const imageIndex = (index + 0) % allImages.length
+              {marqueeSlots.map((_, index) => {
+                const imageIndex = index % (marqueeSlots.length / 2)
                 const buildNum = imageIndex + 1
                 return (
                   <button
@@ -501,10 +504,10 @@ export function ProductCarousel() {
                     className="marquee-item"
                     key={index}
                     onClick={() => setPreviewIndex(imageIndex)}
-                    title={}
-                    aria-label={}
+                    title={`Click to preview Build #${buildNum}`}
+                    aria-label={`Preview Build #${buildNum}`}
                   >
-                    <img src={allImages[imageIndex]} alt={} loading="lazy" decoding="async" />
+                    <img src={allImages[imageIndex]} alt={`ZED MEGA Custom Build #${buildNum}`} loading="lazy" decoding="async" />
                     <div className="marquee-item-overlay">
                       <span className="marquee-inspect-pill">
                         <Maximize2 size={12} /> #{buildNum}
@@ -515,7 +518,7 @@ export function ProductCarousel() {
               })}
             </div>
             <div className="marquee-track marquee-row-b">
-              {allImages.concat(allImages).map((src, index) => {
+              {marqueeSlots.map((_, index) => {
                 const imageIndex = (index + 25) % allImages.length
                 const buildNum = imageIndex + 1
                 return (
@@ -524,10 +527,10 @@ export function ProductCarousel() {
                     className="marquee-item"
                     key={index}
                     onClick={() => setPreviewIndex(imageIndex)}
-                    title={}
-                    aria-label={}
+                    title={`Click to preview Build #${buildNum}`}
+                    aria-label={`Preview Build #${buildNum}`}
                   >
-                    <img src={allImages[imageIndex]} alt={} loading="lazy" decoding="async" />
+                    <img src={allImages[imageIndex]} alt={`ZED MEGA Custom Build #${buildNum}`} loading="lazy" decoding="async" />
                     <div className="marquee-item-overlay">
                       <span className="marquee-inspect-pill">
                         <Maximize2 size={12} /> #{buildNum}
