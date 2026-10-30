@@ -1,0 +1,297 @@
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.is-loading {
+  overflow: hidden;
+}
+
+.logo-loader {
+  --loader-bg: #02050f;
+  --loader-bg-2: #0a1a4a;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2.2vmin, 20px);
+  overflow: hidden;
+  padding: env(safe-area-inset-top, 0) 0 env(safe-area-inset-bottom, 0);
+  color: #eef3ff;
+  background: radial-gradient(circle at 50% 42%, var(--loader-bg-2) 0%, #050d2b 38%, var(--loader-bg) 78%);
+  clip-path: circle(150% at 50% 45%);
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  overscroll-behavior: none;
+  transition: clip-path 1.1s cubic-bezier(.7, 0, .2, 1), opacity .5s ease .7s;
+}
+
+.logo-loader-exit {
+  clip-path: circle(0% at 50% 45%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.logo-loader-stage {
+  position: relative;
+  width: clamp(100px, 24vmin, 150px);
+  height: clamp(100px, 24vmin, 150px);
+  animation: loader-rise 1.2s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+.logo-loader-stage > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.logo-loader-halo {
+  position: absolute;
+  inset: -14%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(47, 107, 255, .32) 30%, transparent 68%);
+  animation: loader-breathe 3.6s ease-in-out infinite;
+}
+
+.logo-loader-mark {
+  position: absolute;
+  inset: 9%;
+  overflow: hidden;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(232, 238, 252, .25), 0 0 24px rgba(47, 107, 255, .35);
+  contain: paint;
+}
+
+.logo-loader-mark::after {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, .28) 50%, transparent 60%);
+  transform: translateX(-120%);
+  animation: loader-sheen 3.4s ease-in-out 1s infinite;
+}
+
+.logo-loader-mark img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.logo-loader-ticks line {
+  stroke: rgba(143, 164, 216, .35);
+  stroke-width: .6;
+}
+
+.logo-loader-ticks line.is-active {
+  stroke: rgba(232, 238, 252, .9);
+}
+
+.logo-loader-track {
+  fill: none;
+  stroke: rgba(143, 164, 216, .18);
+  stroke-width: 1;
+}
+
+.logo-loader-progress {
+  fill: none;
+  stroke: url(#logo-loader-gradient);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+
+.logo-loader-glow {
+  fill: none;
+  stroke: #5b8dff;
+  stroke-width: 7;
+  stroke-linecap: round;
+  opacity: .22;
+}
+
+.logo-loader-head-glow {
+  fill: rgba(127, 166, 255, .35);
+}
+
+.logo-loader-head {
+  fill: #fff;
+}
+
+.logo-loader-brand {
+  margin: 0;
+  padding-left: .38em;
+  color: #e8eefc;
+  font: 600 clamp(16px, 3vmin, 22px)/1 Cinzel, Georgia, serif;
+  letter-spacing: .65em;
+  opacity: 0;
+  text-shadow: 0 0 16px rgba(47, 107, 255, .5);
+  animation: loader-track 2s cubic-bezier(.2, .7, .2, 1) .4s forwards;
+}
+
+.logo-loader-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  animation: loader-fade 1s ease 1s forwards;
+}
+
+.logo-loader-meta span {
+  color: #8fa4d8;
+  font: 500 clamp(9px, 1.8vmin, 11px)/1 Montserrat, system-ui, sans-serif;
+  letter-spacing: .32em;
+  padding-left: .32em;
+}
+
+.logo-loader-meta strong {
+  min-width: 3.6em;
+  color: #eef3ff;
+  font: 400 clamp(14px, 2.6vmin, 18px)/1 Cinzel, Georgia, serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .15em;
+  padding-left: .15em;
+  text-align: center;
+}
+
+.logo-loader-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  color: rgba(143, 164, 216, .8);
+  font: 500 clamp(8px, 1.6vmin, 10px)/1 Montserrat, system-ui, sans-serif;
+  letter-spacing: .2em;
+  white-space: nowrap;
+  opacity: 0;
+  animation: loader-fade 1s ease 1.4s forwards;
+}
+
+.logo-loader-tag span {
+  width: clamp(12px, 3vmin, 24px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(143, 164, 216, .65));
+}
+
+.logo-loader-tag span:last-child {
+  transform: scaleX(-1);
+}
+
+.logo-loader-foot {
+  position: absolute;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+  left: 0;
+  margin: 0;
+  color: rgba(143, 164, 216, .5);
+  font: 500 9px/1 Montserrat, system-ui, sans-serif;
+  letter-spacing: .16em;
+  text-align: center;
+  opacity: 0;
+  animation: loader-fade 1s ease 1.6s forwards;
+}
+
+@keyframes loader-rise {
+  from {
+    opacity: 0;
+    transform: scale(.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes loader-breathe {
+  50% {
+    opacity: .6;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes loader-sheen {
+  0% {
+    transform: translateX(-120%);
+  }
+  55%, 100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes loader-track {
+  from {
+    opacity: 0;
+    letter-spacing: .65em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: .38em;
+  }
+}
+
+@keyframes loader-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .logo-loader {
+    gap: clamp(6px, 1.6vh, 10px);
+  }
+  .logo-loader-stage {
+    width: min(32vh, 110px);
+    height: min(32vh, 110px);
+  }
+  .logo-loader-brand {
+    font-size: clamp(13px, 3vh, 16px);
+  }
+  .logo-loader-meta strong {
+    font-size: clamp(12px, 2.4vh, 15px);
+  }
+  .logo-loader-foot {
+    display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo-loader-brand {
+    letter-spacing: .25em;
+  }
+  .logo-loader-meta span {
+    letter-spacing: .25em;
+  }
+  .logo-loader-tag span {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-loader-halo,
+  .logo-loader-mark::after {
+    animation: none;
+  }
+  .logo-loader-stage,
+  .logo-loader-brand,
+  .logo-loader-meta,
+  .logo-loader-tag,
+  .logo-loader-foot {
+    animation-duration: .01s;
+    animation-delay: 0s;
+  }
+  .logo-loader-brand {
+    letter-spacing: .38em;
+  }
+  .logo-loader {
+    clip-path: none;
+    transition: opacity .4s ease;
+  }
+  .logo-loader-exit {
+    clip-path: none;
+  }
+}

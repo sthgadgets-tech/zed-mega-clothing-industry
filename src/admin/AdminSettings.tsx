@@ -1,0 +1,14 @@
+import { AdminPageHeader, AdminSaveBar, useAdmin } from './AdminLayout'
+
+export function AdminSettings() {
+  const { content, updateContent } = useAdmin()
+  const settings = content.settings
+  const update = (key: keyof typeof settings, value: string) => updateContent({ ...content, settings: { ...settings, [key]: value } })
+  return <>
+    <AdminPageHeader eyebrow="SITE CONFIGURATION" title="Footer and contact" description="Update the demo contact and footer values. These changes are local and do not alter the public website." />
+    <section className="admin-panel admin-editor-group"><div className="admin-panel-heading"><div><h2>Contact information</h2><p>Values used by the future CMS-powered footer.</p></div></div><div className="admin-field-grid"><label className="admin-field"><span>Contact email</span><input type="email" value={settings.email} onChange={(event) => update('email', event.target.value)} /></label><label className="admin-field"><span>Telephone</span><input value={settings.phone} onChange={(event) => update('phone', event.target.value)} /></label><label className="admin-field"><span>WhatsApp number</span><input value={settings.whatsapp} onChange={(event) => update('whatsapp', event.target.value)} /></label><label className="admin-field admin-field-wide"><span>Address</span><textarea rows={2} value={settings.address} onChange={(event) => update('address', event.target.value)} /></label></div></section>
+    <section className="admin-panel admin-editor-group"><div className="admin-panel-heading"><div><h2>Footer content</h2><p>Brand description, social links, and legal text.</p></div></div><div className="admin-field-grid"><label className="admin-field admin-field-wide"><span>Footer description</span><textarea rows={3} value={settings.footerBlurb} onChange={(event) => update('footerBlurb', event.target.value)} /></label><label className="admin-field"><span>Instagram URL</span><input type="url" placeholder="https://instagram.com/..." value={settings.instagramUrl} onChange={(event) => update('instagramUrl', event.target.value)} /></label><label className="admin-field"><span>LinkedIn URL</span><input type="url" placeholder="https://linkedin.com/company/..." value={settings.linkedinUrl} onChange={(event) => update('linkedinUrl', event.target.value)} /></label><label className="admin-field admin-field-wide"><span>Copyright text</span><input value={settings.copyright} onChange={(event) => update('copyright', event.target.value)} /></label></div></section>
+    <section className="admin-panel admin-editor-group admin-coming-soon"><div className="admin-panel-heading"><div><h2>Brand logo</h2><p>Persistent replacement requires cloud media storage and is not available in local preview mode.</p></div><span className="admin-coming-badge">Not configured</span></div></section>
+    <AdminSaveBar />
+  </>
+}
