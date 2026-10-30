@@ -2,3 +2,11 @@ node_modules/
 dist/
 .claude/
 *.log
+.env
+.env.*
+!.env.example
+.vercel
+
+.vercel
+.env*
+.apna-tool/
