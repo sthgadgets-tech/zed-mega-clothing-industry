@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZED MEGA Clothing Industry | Custom Sportswear and Activewear, Sialkot</title>
+    <meta name="description" content="Custom sportswear and activewear manufacturer in Sialkot, Pakistan. Team uniforms and private-label apparel made to your design, from 50 pieces per style." />
+    <link rel="icon" type="image/jpeg" href="/images/logo-shield.jpg" />
+    <link rel="preload" href="/audio/zedmega-intro.mp3" as="audio" type="audio/mpeg" />
+  </head>
+  <body>
+    <audio id="zedmega-intro-audio" src="/audio/zedmega-intro.mp3" preload="auto" autoplay playsinline style="display:none"></audio>
+    <script>
+      (function() {
+        try {
+          var a = document.getElementById('zedmega-intro-audio');
+          if (!a) return;
+          a.volume = 1;
+          a.playbackRate = 1.22;
+          a.preservesPitch = true;
+          var p = a.play();
+          if (p !== undefined) {
+            p.catch(function() {
+              var unlock = function() {
+                a.currentTime = 0;
+                a.playbackRate = 1.22;
+                a.preservesPitch = true;
+                a.play().catch(function(){});
+                window.removeEventListener('pointerdown', unlock, true);
+                window.removeEventListener('touchstart', unlock, true);
+                window.removeEventListener('click', unlock, true);
+                window.removeEventListener('keydown', unlock, true);
+              };
+              window.addEventListener('pointerdown', unlock, true);
+              window.addEventListener('touchstart', unlock, true);
+              window.addEventListener('click', unlock, true);
+              window.addEventListener('keydown', unlock, true);
+            });
+          }
+        } catch(e) {}
+      })();
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
