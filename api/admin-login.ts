@@ -1,7 +1,7 @@
 // Checks admin credentials against server environment variables (see _auth.ts)
 // and returns a signed session token. The credentials never reach the browser bundle.
 
-import { checkCredentials, createToken, isAuthConfigured } from './_auth'
+import { checkCredentials, createToken, isAuthConfigured } from './_auth.js'
 
 export async function handleAdminLogin(request: Request): Promise<Response> {
   if (request.method !== 'POST') return Response.json({ error: 'Method not allowed.' }, { status: 405 })

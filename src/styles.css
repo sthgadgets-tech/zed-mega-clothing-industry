@@ -1584,3 +1584,7 @@ button, a, input, select, textarea, label { -webkit-tap-highlight-color: transpa
 @media (max-width: 700px) {
   small, .slide-badge, .slide-moq, .quote-badge, .catalog-card-img span, .section-label, .button, .announcement-item, .hero-side-label, .hero-scroll, .marquee-badge, .marquee-inspect-pill, .spec-cards-header span, .spec-card-badge, .category-block-title span, .carrier-row span, .blog-meta, .hbc-pill span, .hbc-origin, .hbc-stat span, .footer-bottom span, .catalog-group h2, .quote-card-header span { font-size: 11px !important; }
 }
+
+/* Manufacturing steps: real photos in a clean circle (the irregular clip shapes suit the texture, not photos) */
+.process-shape.has-photo { width: 100%; height: 100%; inset: 0; background-size: cover; background-position: center; clip-path: circle(50% at 50% 50%); transform: none; opacity: 1; }
+.process-card:hover .process-shape.has-photo { filter: saturate(1.1) brightness(1.05); transform: scale(1.06); }

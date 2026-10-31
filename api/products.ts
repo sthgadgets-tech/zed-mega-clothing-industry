@@ -5,9 +5,9 @@
 // Image bytes are served by /api/product-image.
 
 import { Binary, ObjectId } from 'mongodb'
-import { getDb } from './_db'
-import { verifyToken } from './_auth'
-import { activewear, sports } from '../src/lib/categories'
+import { getDb } from './_db.js'
+import { verifyToken } from './_auth.js'
+import { activewear, sports } from './_categories.js'
 
 const categories = new Set([...sports, ...activewear])
 const MAX_IMAGE_BYTES = 3 * 1024 * 1024

@@ -6,9 +6,9 @@
 //   MONGODB_URI      Optional; when set, every request is also saved (see _db.ts)
 //   VAPID_*          Optional; when set, admin devices get a push notification (see _push.ts)
 
-import { getDb } from './_db'
-import { notifyAdmins } from './_push'
-import { activewear, sports } from '../src/lib/categories'
+import { getDb } from './_db.js'
+import { notifyAdmins } from './_push.js'
+import { activewear, sports } from './_categories.js'
 
 type QuoteInput = {
   name: string

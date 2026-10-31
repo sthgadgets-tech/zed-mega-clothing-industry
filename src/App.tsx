@@ -35,12 +35,12 @@ const audiences = [
   ['06', 'Corporate and events', 'Custom apparel that turns a team moment into something people keep.'],
 ]
 const process = [
-  ['01', 'Pattern making', 'Your design is translated into production-ready patterns and graded sizes.'],
-  ['02', 'Pre-production sampling', 'We make a physical sample so fit, fabric, and decoration can be approved.'],
-  ['03', 'Material sourcing', 'We match performance fabrics and trims to the intended use and hand feel.'],
-  ['04', 'Cutting and printing', 'Panels are cut accurately, then printed, embroidered, or heat-applied.'],
-  ['05', 'Sewing and quality control', 'Experienced operators assemble and inspect every production run.'],
-  ['06', 'Packaging and shipping', 'Your labels and packing plan are applied before worldwide dispatch.'],
+  ['01', 'Pattern making', 'Your design is translated into production-ready patterns and graded sizes.', '/images/process/pattern-making.webp'],
+  ['02', 'Pre-production sampling', 'We make a physical sample so fit, fabric, and decoration can be approved.', '/images/process/sampling.webp'],
+  ['03', 'Material sourcing', 'We match performance fabrics and trims to the intended use and hand feel.', '/images/process/material-sourcing.webp'],
+  ['04', 'Cutting and printing', 'Panels are cut accurately, then printed, embroidered, or heat-applied.', '/images/process/cutting.webp'],
+  ['05', 'Sewing and quality control', 'Experienced operators assemble and inspect every production run.', '/images/process/sewing.webp'],
+  ['06', 'Packaging and shipping', 'Your labels and packing plan are applied before worldwide dispatch.', '/images/process/packaging.webp'],
 ]
 const faqs = [
   ['What is your minimum order quantity?', 'Our standard minimum is 50 pieces per style. Sizes can be mixed within that order.'],
@@ -566,7 +566,7 @@ function Manufacturing() {
           <p>Our process keeps quality visible. Every stage has an owner, a check, and a clear handoff.</p>
         </div>
         <div className="process-grid">
-          {process.map(([number, title, text], i) => (
+          {process.map(([number, title, text, photo], i) => (
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -577,7 +577,7 @@ function Manufacturing() {
             >
               <div className="process-orb">
                 <span>{number}</span>
-                <div className={`process-shape shape-${i + 1}`} />
+                <div className={`process-shape shape-${i + 1} has-photo`} style={{ backgroundImage: `url(${photo})` }} role="img" aria-label={title} />
               </div>
               <h3>{title}</h3>
               <p>{text}</p>

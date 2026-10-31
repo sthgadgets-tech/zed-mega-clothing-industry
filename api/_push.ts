@@ -5,7 +5,7 @@
 //   VAPID_SUBJECT       contact URL for push services, e.g. "mailto:you@example.com"
 
 import webpush from 'web-push'
-import { getDb } from './_db'
+import { getDb } from './_db.js'
 
 export type PushPayload = { title: string; body: string; url?: string; tag?: string }
 

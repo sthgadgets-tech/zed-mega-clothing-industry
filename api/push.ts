@@ -4,9 +4,9 @@
 //   POST   /api/push?action=test     admin: send a test notification to every admin device
 //   DELETE /api/push                 admin: remove { endpoint }
 
-import { getDb } from './_db'
-import { verifyToken } from './_auth'
-import { isPushConfigured, notifyAdmins } from './_push'
+import { getDb } from './_db.js'
+import { verifyToken } from './_auth.js'
+import { isPushConfigured, notifyAdmins } from './_push.js'
 
 function isAdmin(request: Request) {
   return verifyToken(request.headers.get('authorization')?.replace(/^Bearer\s+/i, ''))
