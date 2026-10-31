@@ -11,6 +11,7 @@ import { SocialLinks } from './components/SocialLinks'
 import { ShippingFlags } from './components/ShippingFlags'
 import { CONTACT_EMAIL, inquiryMailto } from './lib/email'
 import { activewear, sports } from './lib/categories'
+import { useCategoryCovers } from './lib/categoryCovers'
 import './styles.css'
 import './quote.css'
 
@@ -71,6 +72,11 @@ const categoryImages: Record<string, string> = {
   Tracksuits: '/images/products/product-42.webp',
   'Street & Fashion Wear': '/images/products/product-51.webp',
 }
+// Admin-uploaded covers (see /admin/categories) win over the built-in photos.
+function useCoverOf() {
+  const uploaded = useCategoryCovers()
+  return (name: string) => uploaded[name] ?? categoryImages[name]
+}
 
 const slugify = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 const categoryPath = (name: string) => `/category/${slugify(name)}`
@@ -98,6 +104,7 @@ const navLinks = [
 ] as const
 
 function Header() {
+  const coverOf = useCoverOf()
   const [open, setOpen] = useState(false)
   const [menu, setMenu] = useState<string | null>(null)
   const [scrolled, setScrolled] = useState(false)
@@ -164,7 +171,7 @@ function Header() {
                     </div>
                     <Link to={categoryPath(preview ?? items[0])} onClick={close} className="mega-feature">
                       <AnimatePresence mode="wait">
-                        <motion.span key={preview ?? items[0]} className="mega-feature-img" style={{ backgroundImage: `url(${categoryImages[preview ?? items[0]]})` }} initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: .35 }} />
+                        <motion.span key={preview ?? items[0]} className="mega-feature-img" style={{ backgroundImage: `url(${coverOf(preview ?? items[0])})` }} initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: .35 }} />
                       </AnimatePresence>
                       <span className="mega-feature-body">
                         <small>Custom {label.toLowerCase()}</small>
@@ -472,11 +479,12 @@ function Testimonials() {
 }
 
 function CategoryCard({ name }: { name: string }) {
+  const coverOf = useCoverOf()
   return (
     <Link
       className="category-card"
       to={categoryPath(name)}
-      style={{ backgroundImage: `linear-gradient(180deg, rgba(6,19,43,.15), rgba(6,19,43,.92)), url(${categoryImages[name]})` }}
+      style={{ backgroundImage: `linear-gradient(180deg, rgba(6,19,43,.15), rgba(6,19,43,.92)), url(${coverOf(name)})` }}
     >
       <span>{name}</span>
       <ArrowRight size={17} />
@@ -522,6 +530,7 @@ function Categories() {
 type CatalogItem = { id: string; title: string; image: string; description: string; moq: string }
 
 function CategoryPage() {
+  const coverOf = useCoverOf()
   const { slug } = useParams()
   const { pathname } = useLocation()
   // Old links to /category/streetwear still work after the rename.
@@ -550,13 +559,13 @@ function CategoryPage() {
   const group = sports.includes(name) ? 'Sportswear' : 'Activewear'
   const listed: CatalogItem[] = [...uploaded, ...showcaseProducts.filter((product) => product.category === name)]
   // Categories without showcase items yet still get one card built from their cover image.
-  const products = listed.length ? listed : [{ id: slugify(name), title: `Custom ${name}`, image: categoryImages[name], description: `${name} made to your design, fabric, and branding.`, moq: 'MOQ 50 PCS' }]
+  const products = listed.length ? listed : [{ id: slugify(name), title: `Custom ${name}`, image: coverOf(name), description: `${name} made to your design, fabric, and branding.`, moq: 'MOQ 50 PCS' }]
   const quoteHref = `/quote?product=${encodeURIComponent(name)}`
 
   return <>
     <Header />
     <main className="catalog-page">
-      <section className="catalog-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(6,19,43,.96) 30%, rgba(6,19,43,.55)), url(${categoryImages[name]})` }}>
+      <section className="catalog-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(6,19,43,.96) 30%, rgba(6,19,43,.55)), url(${coverOf(name)})` }}>
         <div className="container">
           <p className="catalog-crumbs"><Link to="/">Home</Link><ChevronRight size={13} /><a href="/#categories">{group}</a><ChevronRight size={13} /><span>{name}</span></p>
           <h1>{name}</h1>
@@ -572,7 +581,7 @@ function CategoryPage() {
               <nav>
                 {items.map((item) => (
                   <Link key={item} to={categoryPath(item)} className={cn(item === name && 'is-active')} aria-current={item === name ? 'page' : undefined}>
-                    <img src={categoryImages[item]} alt="" loading="lazy" decoding="async" /><span><b>{item}</b><small>{showcaseProducts.filter((p) => p.category === item).length || 1} designs</small></span><ChevronRight size={15} />
+                    <img src={coverOf(item)} alt="" loading="lazy" decoding="async" /><span><b>{item}</b><small>{showcaseProducts.filter((p) => p.category === item).length || 1} designs</small></span><ChevronRight size={15} />
                   </Link>
                 ))}
               </nav>

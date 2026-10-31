@@ -1,33 +1,11 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { ImagePlus, Loader2, Trash2, UploadCloud, X } from 'lucide-react'
 import { AdminPageHeader } from './AdminLayout'
-import { getToken } from './auth'
+import { authRequest, toWebp } from './upload'
 import { activewear, sports } from '../lib/categories'
 
 type Product = { id: string; category: string; title: string; description: string; image: string }
 type Message = { type: 'ok' | 'error'; text: string }
-
-const MAX_SIDE = 1400
-
-// Shrinks big camera photos to a web-sized WebP before upload.
-async function toWebp(file: File): Promise<string> {
-  const bitmap = await createImageBitmap(file)
-  const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height))
-  const canvas = document.createElement('canvas')
-  canvas.width = Math.round(bitmap.width * scale)
-  canvas.height = Math.round(bitmap.height * scale)
-  canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
-  bitmap.close()
-  return canvas.toDataURL('image/webp', 0.82)
-}
-
-function authRequest(method: string, url: string, body?: unknown) {
-  return fetch(url, {
-    method,
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken() ?? ''}` },
-    body: body ? JSON.stringify(body) : undefined,
-  })
-}
 
 export function AdminProducts() {
   const [category, setCategory] = useState(sports[0])
