@@ -42,7 +42,7 @@ const process = [
   ['02', 'Pre-production sampling', 'We make a physical sample so fit, fabric, and decoration can be approved.', '/images/process/sampling-v3.webp'],
   ['03', 'Material sourcing', 'We match performance fabrics and trims to the intended use and hand feel.', '/images/process/material-sourcing-v3.webp'],
   ['04', 'Cutting and printing', 'Panels are cut accurately, then printed, embroidered, or heat-applied.', '/images/process/cutting-v3.webp'],
-  ['05', 'Sewing and quality control', 'Experienced operators assemble and inspect every production run.', '/images/process/sewing-v3.webp'],
+  ['05', 'Sewing and quality control', 'Experienced operators assemble and inspect every production run.', '/images/process/sewing-v4.webp'],
   ['06', 'Packaging and shipping', 'Your labels and packing plan are applied before worldwide dispatch.', '/images/process/packaging-v3.webp'],
 ]
 const faqs = [
