@@ -38,12 +38,12 @@ const audiences = [
   ['06', 'Corporate and events', 'Custom apparel that turns a team moment into something people keep.'],
 ]
 const process = [
-  ['01', 'Pattern making', 'Your design is translated into production-ready patterns and graded sizes.', '/images/process/pattern-making.webp'],
-  ['02', 'Pre-production sampling', 'We make a physical sample so fit, fabric, and decoration can be approved.', '/images/process/sampling.webp'],
-  ['03', 'Material sourcing', 'We match performance fabrics and trims to the intended use and hand feel.', '/images/process/material-sourcing.webp'],
-  ['04', 'Cutting and printing', 'Panels are cut accurately, then printed, embroidered, or heat-applied.', '/images/process/cutting.webp'],
+  ['01', 'Pattern making', 'Your design is translated into production-ready patterns and graded sizes.', '/images/process/pattern-making-v2.webp'],
+  ['02', 'Pre-production sampling', 'We make a physical sample so fit, fabric, and decoration can be approved.', '/images/process/sampling-v2.webp'],
+  ['03', 'Material sourcing', 'We match performance fabrics and trims to the intended use and hand feel.', '/images/process/material-sourcing-v2.webp'],
+  ['04', 'Cutting and printing', 'Panels are cut accurately, then printed, embroidered, or heat-applied.', '/images/process/cutting-v2.webp'],
   ['05', 'Sewing and quality control', 'Experienced operators assemble and inspect every production run.', '/images/process/sewing.webp'],
-  ['06', 'Packaging and shipping', 'Your labels and packing plan are applied before worldwide dispatch.', '/images/process/packaging.webp'],
+  ['06', 'Packaging and shipping', 'Your labels and packing plan are applied before worldwide dispatch.', '/images/process/packaging-v2.webp'],
 ]
 const faqs = [
   ['What is your minimum order quantity?', 'Our standard minimum is 50 pieces per style. Sizes can be mixed within that order.'],
