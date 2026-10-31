@@ -52,7 +52,7 @@ const faqs = [
 const categoryImages: Record<string, string> = {
   'American Football': '/images/products/product-10.webp',
   Baseball: '/images/products/product-07.webp',
-  Basketball: '/images/products/product-04.webp',
+  Basketball: '/images/products/basketball-cover.webp',
   Soccer: '/images/products/product-11.webp',
   Rugby: '/images/products/product-27.webp',
   'Ice Hockey': '/images/products/product-33.webp',
