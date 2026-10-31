@@ -69,7 +69,7 @@ const categoryImages: Record<string, string> = {
   Shorts: '/images/products/product-12.webp',
   Joggers: '/images/products/product-17.webp',
   Tracksuits: '/images/products/product-42.webp',
-  Streetwear: '/images/products/product-51.webp',
+  'Street & Fashion Wear': '/images/products/product-51.webp',
 }
 
 const slugify = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
@@ -524,7 +524,9 @@ type CatalogItem = { id: string; title: string; image: string; description: stri
 function CategoryPage() {
   const { slug } = useParams()
   const { pathname } = useLocation()
-  const name = [...sports, ...activewear].find((item) => slugify(item) === slug)
+  // Old links to /category/streetwear still work after the rename.
+  const legacySlugs: Record<string, string> = { streetwear: 'street-fashion-wear' }
+  const name = [...sports, ...activewear].find((item) => slugify(item) === (legacySlugs[slug ?? ''] ?? slug))
 
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
   const [uploaded, setUploaded] = useState<CatalogItem[]>([])
@@ -800,7 +802,7 @@ function QuoteCTA() {
 }
 
 function Footer() {
-  return <><ScrollToTop /><WhatsAppButton /><footer className="site-footer"><div className="container"><div className="footer-top"><div><Logo /><p className="footer-blurb">Custom sportswear and private-label activewear from Sialkot, Pakistan. Made around your design.</p><SocialLinks /></div><div className="footer-links"><div><h4>Products</h4><a href="/#categories">Team uniforms</a><a href="/#categories">Tracksuits</a><a href="/#categories">Hoodies & sweatshirts</a><a href="/#categories">Cheerleading</a><a href="/#categories">Streetwear</a></div><div><h4>Explore</h4><a href="/#showcase">Showcase</a><a href="/#categories">Sportswear</a><a href="/#categories">Activewear</a><a href="/#manufacturing">Manufacturing</a><a href="/#about">About us</a></div><div><h4>Contact</h4><a href={inquiryMailto()}><Mail size={14} /> zhr.zedmega@gmail.com</a><a href="https://wa.me/923286250355"><Phone size={14} /> +92 328 625 0355</a><span><Globe2 size={14} /> Sharay Da Koat, Jaserwala, Daska, Sialkot, Pakistan</span></div></div></div><div className="footer-bottom"><span>© 2026 ZED MEGA Clothing Industry</span><span>Member, Sialkot Chamber of Commerce</span><span>Since 2015</span></div></div></footer></>
+  return <><ScrollToTop /><WhatsAppButton /><footer className="site-footer"><div className="container"><div className="footer-top"><div><Logo /><p className="footer-blurb">Custom sportswear and private-label activewear from Sialkot, Pakistan. Made around your design.</p><SocialLinks /></div><div className="footer-links"><div><h4>Products</h4><a href="/#categories">Team uniforms</a><a href="/#categories">Tracksuits</a><a href="/#categories">Hoodies & sweatshirts</a><a href="/#categories">Cheerleading</a><a href="/category/street-fashion-wear">Street &amp; fashion wear</a></div><div><h4>Explore</h4><a href="/#showcase">Showcase</a><a href="/#categories">Sportswear</a><a href="/#categories">Activewear</a><a href="/#manufacturing">Manufacturing</a><a href="/#about">About us</a></div><div><h4>Contact</h4><a href={inquiryMailto()}><Mail size={14} /> zhr.zedmega@gmail.com</a><a href="https://wa.me/923286250355"><Phone size={14} /> +92 328 625 0355</a><span><Globe2 size={14} /> Sharay Da Koat, Jaserwala, Daska, Sialkot, Pakistan</span></div></div></div><div className="footer-bottom"><span>© 2026 ZED MEGA Clothing Industry</span><span>Member, Sialkot Chamber of Commerce</span><span>Since 2015</span></div></div></footer></>
 }
 
 function Home() {

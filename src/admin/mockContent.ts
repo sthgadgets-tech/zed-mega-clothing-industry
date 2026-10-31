@@ -62,7 +62,7 @@ export const initialContent: SiteContent = {
       ['Shorts', '/images/products/product-12.webp'],
       ['Joggers', '/images/products/product-17.webp'],
       ['Tracksuits', '/images/products/product-42.webp'],
-      ['Streetwear', '/images/products/product-51.webp'],
+      ['Street & Fashion Wear', '/images/products/product-51.webp'],
     ].map(([name, imagePath], index) => ({ id: `active-${index}`, group: 'activewear' as const, name, href: '/quote', imagePath, enabled: true })),
   ],
   manufacturing: [
