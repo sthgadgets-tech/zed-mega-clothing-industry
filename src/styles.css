@@ -1028,6 +1028,7 @@ h3 { font-size: 23px; color: white; }
    ========================================================================== */
 .faq { padding: 96px 0; background: linear-gradient(180deg, #ffffff 0%, #f5f7fb 100%); }
 .faq-grid { grid-template-columns: .85fr 1.15fr; gap: 64px; align-items: start; }
+@media (max-width: 960px) { .faq-grid { grid-template-columns: minmax(0, 1fr); gap: 36px; } }
 .faq-intro { position: sticky; top: 110px; }
 .faq .faq-grid .muted { max-width: 360px; font-size: 15px; line-height: 1.6; }
 .faq-contact { display: flex; flex-direction: column; gap: 6px; max-width: 380px; margin-top: 28px; padding: 24px; background: linear-gradient(135deg, #06132b 0%, #0b2a5c 100%); border-radius: 16px; box-shadow: 0 18px 40px rgba(6, 19, 43, .18); }

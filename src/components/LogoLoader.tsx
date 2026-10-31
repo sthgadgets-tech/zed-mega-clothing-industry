@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getIntroAudio, startIntroAudio } from '../lib/introAudio'
+import { cancelIntroAudioWait, getIntroAudio, startIntroAudio } from '../lib/introAudio'
 import './logo-loader.css'
 
 const BRAND_LABEL = 'ZED MEGA'
@@ -13,19 +13,20 @@ const RING_LENGTH = 100
 
 type Phase = 'loading' | 'exit' | 'done'
 
-// The intro plays once per browser; returning visitors go straight to the site.
+// The intro plays once per visit (browser tab session); moving between pages doesn't replay it.
 const SEEN_KEY = 'zedmega-intro-seen'
 function hasSeenIntro() {
-  try { return localStorage.getItem(SEEN_KEY) === '1' } catch { return false }
+  try { return sessionStorage.getItem(SEEN_KEY) === '1' } catch { return false }
 }
 
 export function LogoLoader() {
   const [phase, setPhase] = useState<Phase>(() => hasSeenIntro() ? 'done' : 'loading')
   const [progress, setProgress] = useState(1)
+  const [soundBlocked, setSoundBlocked] = useState(false)
 
   useEffect(() => {
     if (phase === 'done') return
-    try { localStorage.setItem(SEEN_KEY, '1') } catch { /* storage blocked: intro just plays again */ }
+    try { sessionStorage.setItem(SEEN_KEY, '1') } catch { /* storage blocked: intro just plays again */ }
     document.body.classList.add('is-loading')
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const startedAt = performance.now()
@@ -43,8 +44,8 @@ export function LogoLoader() {
       }, reducedMotion ? 200 : 350)
     }
 
-    // Trigger audio intro immediately
-    startIntroAudio()
+    // Phones block sound until the visitor taps; show a hint so they can turn it on.
+    startIntroAudio().then((playing) => { if (!cancelled && !playing) setSoundBlocked(true) })
     const audio = getIntroAudio()
     audio.addEventListener('ended', finish)
     let lastRatio = 0
@@ -75,6 +76,8 @@ export function LogoLoader() {
     return () => {
       cancelled = true
       audio.removeEventListener('ended', finish)
+      // Once the intro is over, a later tap must not suddenly start the sound.
+      cancelIntroAudioWait()
       document.body.classList.remove('is-loading')
       cancelAnimationFrame(frameId)
       window.clearTimeout(finishTimer)
@@ -100,8 +103,7 @@ export function LogoLoader() {
   return (
     <div
       className={`logo-loader logo-loader-${phase}`}
-      onClick={startIntroAudio}
-      onPointerDown={startIntroAudio}
+      onPointerDown={() => { if (soundBlocked) startIntroAudio().then((playing) => { if (playing) setSoundBlocked(false) }) }}
       role="progressbar"
       aria-label="Loading ZED MEGA"
       aria-valuemin={0}
@@ -130,6 +132,7 @@ export function LogoLoader() {
       <p className="logo-loader-brand">{BRAND_LABEL}</p>
       <div className="logo-loader-meta"><span>{MESSAGE}</span><strong>{String(percent).padStart(2, '0')}%</strong></div>
       <p className="logo-loader-tag"><span />{TAGLINE}<span /></p>
+      {soundBlocked && <p className="logo-loader-sound">🔊 Tap anywhere for sound</p>}
       <p className="logo-loader-foot">© 2026 ZED MEGA · ALL RIGHTS RESERVED</p>
     </div>
   )

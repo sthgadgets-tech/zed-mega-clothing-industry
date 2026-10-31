@@ -622,3 +622,9 @@
 @media (prefers-reduced-motion: reduce) {
   .marquee-track, .marquee-live::after { animation: none; }
 }
+
+/* Phones and tablets: wrap the filter tabs so every option is visible without a hidden scroll */
+@media (max-width: 960px) {
+  .carousel-tabs { flex-wrap: wrap; overflow-x: visible; }
+  .carousel-tab { min-height: 40px; padding: 8px 14px; }
+}

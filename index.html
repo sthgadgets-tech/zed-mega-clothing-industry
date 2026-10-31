@@ -12,37 +12,6 @@
   </head>
   <body>
     <audio id="zedmega-intro-audio" src="/audio/zedmega-intro.mp3" preload="auto" playsinline style="display:none"></audio>
-    <script>
-      (function() {
-        try {
-          if (localStorage.getItem('zedmega-intro-seen') === '1') return;
-          var a = document.getElementById('zedmega-intro-audio');
-          if (!a) return;
-          a.volume = 1;
-          a.playbackRate = 1.22;
-          a.preservesPitch = true;
-          var p = a.play();
-          if (p !== undefined) {
-            p.catch(function() {
-              var unlock = function() {
-                a.currentTime = 0;
-                a.playbackRate = 1.22;
-                a.preservesPitch = true;
-                a.play().catch(function(){});
-                window.removeEventListener('pointerdown', unlock, true);
-                window.removeEventListener('touchstart', unlock, true);
-                window.removeEventListener('click', unlock, true);
-                window.removeEventListener('keydown', unlock, true);
-              };
-              window.addEventListener('pointerdown', unlock, true);
-              window.addEventListener('touchstart', unlock, true);
-              window.addEventListener('click', unlock, true);
-              window.addEventListener('keydown', unlock, true);
-            });
-          }
-        } catch(e) {}
-      })();
-    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

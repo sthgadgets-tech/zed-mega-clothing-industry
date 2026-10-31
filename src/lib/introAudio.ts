@@ -67,25 +67,30 @@ export function getIntroAudio(): HTMLAudioElement {
   return getAudio()
 }
 
-export function startIntroAudio() {
-  hasStarted = false
+// Resolves true when the sound is playing, false when the browser blocked it
+// (phones do this until the visitor taps; the first tap then starts it).
+export function startIntroAudio(): Promise<boolean> {
   const audio = getAudio()
+  if (hasStarted && !audio.paused) return Promise.resolve(true)
+  hasStarted = false
   audio.currentTime = 0
   audio.playbackRate = 1
   audio.preservesPitch = true
 
-  const playPromise = audio.play()
-  if (playPromise !== undefined) {
-    playPromise
-      .then(() => {
-        hasStarted = true
-        detachGestureListeners()
-      })
-      .catch((error) => {
-        // Browser autoplay policy prevented unprompted playback.
-        // Listen for any user gesture (click, tap, key) to play immediately.
-        console.warn('[ZED MEGA Audio] Autoplay blocked by browser policy; waiting for user gesture:', error)
-        attachGestureListeners()
-      })
-  }
+  return audio.play()
+    .then(() => {
+      hasStarted = true
+      detachGestureListeners()
+      return true
+    })
+    .catch(() => {
+      attachGestureListeners()
+      return false
+    })
+}
+
+// Called when the intro ends: stop waiting for a tap so browsing never triggers the sound.
+export function cancelIntroAudioWait() {
+  detachGestureListeners()
+  hasStarted = true
 }
