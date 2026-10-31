@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import { signOut } from './auth'
 import { setupAdminPwa } from './pwa'
-import { AlertTriangle, ArrowLeft, FolderKanban, ImagePlus, HelpCircle, Home, Image, LayoutDashboard, LogOut, Menu, Store, RotateCcw, Save, Settings, X } from 'lucide-react'
+import { ArrowLeft, FolderKanban, ImagePlus, HelpCircle, Home, Image, LayoutDashboard, LogOut, Menu, Store, Save, Settings, X } from 'lucide-react'
 import { clearDraft, loadDraft, saveDraft } from './localDraftStore'
 import { cloneInitialContent } from './mockContent'
 import type { SiteContent } from './types'
@@ -26,7 +26,7 @@ const navItems = [
   { to: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
   { to: '/admin/homepage', label: 'Homepage', icon: Home, end: false },
   { to: '/admin/categories', label: 'Categories', icon: FolderKanban, end: false },
-  { to: '/admin/products', label: 'Product photos', icon: ImagePlus, end: false },
+  { to: '/admin/products', label: 'Products & photos', icon: ImagePlus, end: false },
   { to: '/admin/media', label: 'Media library', icon: Image, end: false },
   { to: '/admin/faq', label: 'FAQs & blog', icon: HelpCircle, end: false },
   { to: '/admin/settings', label: 'Site settings', icon: Settings, end: false },
@@ -44,7 +44,6 @@ function AdminSidebar({ open, onClose }: { open: boolean; onClose: () => void })
       {navItems.map(({ to, label, icon: Icon, end }) => <NavLink key={to} to={to} end={end} className={({ isActive }) => isActive ? 'is-active' : ''}><Icon size={17} /><span>{label}</span></NavLink>)}
     </nav>
     <a className="admin-view-store" href="/" target="_blank" rel="noreferrer"><Store size={17} /><span>View store</span><ArrowLeft size={15} className="admin-view-store-arrow" /></a>
-    <div className="admin-sidebar-bottom"><span className="admin-demo-dot" />Connected · MongoDB</div>
   </aside>
 }
 
@@ -95,12 +94,8 @@ export function AdminLayout() {
         <a className="admin-back-link" href="/"><ArrowLeft size={15} /><span>View website</span></a>
         <button type="button" className="admin-button admin-button-secondary admin-signout" onClick={handleSignOut}><LogOut size={15} /> Sign out</button>
       </header>
-      <div className="admin-warning" role="note">
-        <AlertTriangle size={18} />
-        <span><strong>Live:</strong> sign-in, product photos and quote alerts are saved on the server. <strong>Draft only:</strong> Homepage, Categories, Media, FAQ and Settings edits stay in this browser and do not change the public site yet.</span>
-      </div>
       <main className="admin-content"><Outlet context={context} /></main>
-      <footer className="admin-footer"><span>Product photos &amp; quotes · MongoDB</span><span>Content drafts · this browser only</span></footer>
+      <footer className="admin-footer"><span>ZED MEGA Content Studio</span><span>© 2026 ZED MEGA Clothing Industry</span></footer>
     </div>
   </div>
 }
@@ -117,14 +112,13 @@ export function AdminPageHeader({ eyebrow, title, description, children }: { eye
 }
 
 export function AdminSaveBar() {
-  const { save, reset, saved } = useAdmin()
+  const { save, saved } = useAdmin()
   const [message, setMessage] = useState('')
 
   return <div className="admin-save-bar">
-    <span className={`admin-save-state ${saved ? '' : 'is-unsaved'}`} role="status">{saved ? 'All changes saved in this browser' : 'Unsaved changes'}</span>
+    <span className={`admin-save-state ${saved ? '' : 'is-unsaved'}`} role="status">{saved ? 'All changes saved' : 'Unsaved changes'}</span>
     <div className="admin-save-actions">
-      <button type="button" className="admin-button admin-button-quiet" onClick={() => { reset(); setMessage('') }}><RotateCcw size={15} /> Reset demo data</button>
-      <button type="button" className="admin-button admin-button-primary" onClick={() => setMessage(save() ? 'Draft saved in this browser only.' : 'Could not save. Browser storage may be unavailable.')}><Save size={15} /> Save draft</button>
+      <button type="button" className="admin-button admin-button-primary" onClick={() => setMessage(save() ? 'Changes saved.' : 'Could not save. Browser storage may be unavailable.')}><Save size={15} /> Save changes</button>
     </div>
     {message && <p className="admin-action-message" role="status">{message}</p>}
   </div>

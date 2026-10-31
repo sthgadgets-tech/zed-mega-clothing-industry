@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Clock, Globe2, Hash, Layers, Mail, MessageCircle, PackageCheck, Palette, Phone, Printer, Scissors, ShieldCheck, Sparkles, Tag, X } from 'lucide-react'
 import { cn } from './lib/cn'
 import { HeaderAnnouncementBar } from './components/HeaderAnnouncementBar'
-import { ProductCarousel, showcaseProducts } from './components/ProductCarousel'
+import { ProductCarousel } from './components/ProductCarousel'
+import { useCatalog } from './lib/catalog'
 import { WhatsAppButton } from './components/WhatsAppButton'
 import { ScrollToTop } from './components/ScrollToTop'
 import { SocialLinks } from './components/SocialLinks'
@@ -527,10 +528,9 @@ function Categories() {
   )
 }
 
-type CatalogItem = { id: string; title: string; image: string; description: string; moq: string }
-
 function CategoryPage() {
   const coverOf = useCoverOf()
+  const catalog = useCatalog()
   const { slug } = useParams()
   const { pathname } = useLocation()
   // Old links to /category/streetwear still work after the rename.
@@ -538,26 +538,14 @@ function CategoryPage() {
   const name = [...sports, ...activewear].find((item) => slugify(item) === (legacySlugs[slug ?? ''] ?? slug))
 
   useEffect(() => { window.scrollTo(0, 0) }, [pathname])
-  const [uploaded, setUploaded] = useState<CatalogItem[]>([])
-
-  // Photos added from the admin panel (/admin/products) show before the built-in designs.
-  useEffect(() => {
-    setUploaded([])
-    if (!name) return
-    let active = true
-    fetch(`/api/products?category=${encodeURIComponent(name)}`)
-      .then((response) => response.ok ? response.json() : { products: [] })
-      .then((data: { products?: CatalogItem[] }) => { if (active) setUploaded(data.products ?? []) })
-      .catch(() => {})
-    return () => { active = false }
-  }, [name])
 
   if (!name) {
     return <><Header /><main className="catalog-page"><div className="container catalog-empty"><h1>Category not found</h1><a className="button button-red" href="/#categories">Browse categories <ArrowRight size={17} /></a></div></main><Footer /></>
   }
 
   const group = sports.includes(name) ? 'Sportswear' : 'Activewear'
-  const listed: CatalogItem[] = [...uploaded, ...showcaseProducts.filter((product) => product.category === name)]
+  // Admin uploads come first, then built-in designs (with any admin edits applied).
+  const listed = catalog.filter((product) => product.category === name)
   // Categories without showcase items yet still get one card built from their cover image.
   const products = listed.length ? listed : [{ id: slugify(name), title: `Custom ${name}`, image: coverOf(name), description: `${name} made to your design, fabric, and branding.`, moq: 'MOQ 50 PCS' }]
   const quoteHref = `/quote?product=${encodeURIComponent(name)}`
@@ -581,7 +569,7 @@ function CategoryPage() {
               <nav>
                 {items.map((item) => (
                   <Link key={item} to={categoryPath(item)} className={cn(item === name && 'is-active')} aria-current={item === name ? 'page' : undefined}>
-                    <img src={coverOf(item)} alt="" loading="lazy" decoding="async" /><span><b>{item}</b><small>{showcaseProducts.filter((p) => p.category === item).length || 1} designs</small></span><ChevronRight size={15} />
+                    <img src={coverOf(item)} alt="" loading="lazy" decoding="async" /><span><b>{item}</b><small>{catalog.filter((p) => p.category === item).length || 1} designs</small></span><ChevronRight size={15} />
                   </Link>
                 ))}
               </nav>

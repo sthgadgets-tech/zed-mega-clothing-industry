@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { ImagePlus, Loader2, Trash2, UploadCloud, X } from 'lucide-react'
+import { ImagePlus, Loader2, UploadCloud, X } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 import { AdminPageHeader } from './AdminLayout'
 import { authRequest, toWebp } from './upload'
+import { ProductEditCard, type AdminProduct } from './ProductEditCard'
 import { activewear, sports } from '../lib/categories'
 
-type Product = { id: string; category: string; title: string; description: string; image: string }
 type Message = { type: 'ok' | 'error'; text: string }
 
 export function AdminProducts() {
-  const [category, setCategory] = useState(sports[0])
-  const [products, setProducts] = useState<Product[]>([])
+  const [searchParams] = useSearchParams()
+  // Categories page links here with ?category=<name>.
+  const [category, setCategory] = useState(() => [...sports, ...activewear].find((item) => item === searchParams.get('category')) ?? sports[0])
+  const [products, setProducts] = useState<AdminProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [files, setFiles] = useState<File[]>([])
   const [title, setTitle] = useState('')
@@ -32,8 +35,9 @@ export function AdminProducts() {
   const load = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`/api/products?category=${encodeURIComponent(category)}`, { cache: 'no-store' })
-      const data = (await response.json()) as { products?: Product[] }
+      // all=1 with the admin token also returns built-in designs that were hidden.
+      const response = await authRequest('GET', `/api/products?category=${encodeURIComponent(category)}&all=1`)
+      const data = (await response.json()) as { products?: AdminProduct[] }
       setProducts(data.products ?? [])
     } catch {
       setProducts([])
@@ -73,15 +77,11 @@ export function AdminProducts() {
     load()
   }
 
-  const remove = async (product: Product) => {
-    if (!window.confirm(`Delete "${product.title}" from ${product.category}?`)) return
-    const response = await authRequest('DELETE', `/api/products?id=${product.id}`)
-    if (!response.ok) return setMessage({ type: 'error', text: 'Could not delete. Please sign in again.' })
-    setProducts((current) => current.filter((item) => item.id !== product.id))
-  }
+  const hiddenCount = products.filter((item) => item.hidden).length
+  const visibleCount = products.length - hiddenCount
 
   return <>
-    <AdminPageHeader eyebrow="PRODUCT CATALOGUE" title="Product photos" description="Upload photos to any category. They appear on that category page within about a minute." />
+    <AdminPageHeader eyebrow="PRODUCT CATALOGUE" title="Products &amp; photos" description="Every design on the website, by category. Upload new ones, or edit, replace the photo of, hide or delete existing ones. Changes show on the site within about a minute." />
 
     <form className="admin-panel" onSubmit={upload}>
       <div className="admin-field-grid">
@@ -129,15 +129,10 @@ export function AdminProducts() {
     </form>
 
     <section className="admin-panel">
-      <h2 className="admin-product-heading">{category}: {loading ? '…' : `${products.length} uploaded`}</h2>
-      {!loading && products.length === 0 && <p className="admin-empty">No uploaded photos yet. The category still shows its built-in designs.</p>}
-      <div className="admin-product-grid">
-        {products.map((product) => (
-          <figure key={product.id} className="admin-product-card">
-            <img src={product.image} alt={product.title} loading="lazy" />
-            <figcaption><span>{product.title}</span><button type="button" onClick={() => remove(product)} aria-label={`Delete ${product.title}`}><Trash2 size={14} /></button></figcaption>
-          </figure>
-        ))}
+      <h2 className="admin-product-heading">{category}: {loading ? '…' : `${visibleCount} on the website${hiddenCount ? ` · ${hiddenCount} hidden` : ''}`}</h2>
+      {!loading && products.length === 0 && <p className="admin-empty">No designs in this category yet. Upload the first one above.</p>}
+      <div className="admin-edit-grid">
+        {products.map((product) => <ProductEditCard key={`${product.id}-${product.image}-${product.title}-${product.hidden}`} product={product} onChanged={load} onError={(text) => setMessage({ type: 'error', text })} />)}
       </div>
     </section>
   </>

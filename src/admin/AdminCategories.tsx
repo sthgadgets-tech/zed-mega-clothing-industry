@@ -1,31 +1,64 @@
-import { useMemo, useState } from 'react'
-import { ArrowUp, ArrowDown, Eye, EyeOff, Plus, Search, Trash2 } from 'lucide-react'
-import { AdminPageHeader, AdminSaveBar, useAdmin } from './AdminLayout'
-import type { Category } from './types'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, ExternalLink, Search } from 'lucide-react'
+import { AdminPageHeader } from './AdminLayout'
 import { CategoryCoverUpload } from './CategoryCoverUpload'
+import { authRequest } from './upload'
+import { activewear, sports } from '../lib/categories'
+import { cloneInitialContent } from './mockContent'
 
+const slugify = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+// Built-in covers that ship with the site; an uploaded cover replaces them.
+const builtinCovers = Object.fromEntries(cloneInitialContent().categories.map((category) => [category.name, category.imagePath]))
+
+type Group = 'all' | 'sportswear' | 'activewear'
+
+// The website's real categories: cover photo upload, live design count, and a shortcut to edit their designs.
 export function AdminCategories() {
-  const { content, updateContent } = useAdmin()
-  const [group, setGroup] = useState<'all' | Category['group']>('all')
+  const [group, setGroup] = useState<Group>('all')
   const [query, setQuery] = useState('')
+  const [counts, setCounts] = useState<Record<string, number> | null>(null)
   const [uploadError, setUploadError] = useState('')
-  const categories = useMemo(() => content.categories.filter((item) => (group === 'all' || item.group === group) && item.name.toLowerCase().includes(query.toLowerCase())), [content.categories, group, query])
-  const update = (id: string, changes: Partial<Category>) => updateContent({ ...content, categories: content.categories.map((item) => item.id === id ? { ...item, ...changes } : item) })
-  const move = (id: string, delta: number) => {
-    const current = content.categories.findIndex((item) => item.id === id)
-    const target = current + delta
-    if (current < 0 || target < 0 || target >= content.categories.length) return
-    const next = [...content.categories]
-    ;[next[current], next[target]] = [next[target], next[current]]
-    updateContent({ ...content, categories: next })
-  }
-  const add = () => updateContent({ ...content, categories: [...content.categories, { id: `category-${Date.now()}`, group: 'sportswear', name: 'New category', href: '/quote', imagePath: '', enabled: true }] })
+
+  useEffect(() => {
+    authRequest('GET', '/api/products?all=1')
+      .then((response) => (response.ok ? response.json() : { products: [] }))
+      .then((data: { products?: { category: string; hidden?: boolean }[] }) => {
+        const next: Record<string, number> = {}
+        for (const product of data.products ?? []) if (!product.hidden) next[product.category] = (next[product.category] ?? 0) + 1
+        setCounts(next)
+      })
+      .catch(() => setCounts({}))
+  }, [])
+
+  const rows = [
+    ...sports.map((name) => ({ name, group: 'sportswear' as const })),
+    ...activewear.map((name) => ({ name, group: 'activewear' as const })),
+  ].filter((row) => (group === 'all' || row.group === group) && row.name.toLowerCase().includes(query.toLowerCase()))
 
   return <>
-    <AdminPageHeader eyebrow="PRODUCT CATALOGUE" title="Categories" description="Manage the demo sportswear and activewear catalogue. Public cards are unchanged until a real CMS is connected."><button type="button" className="admin-button admin-button-secondary" onClick={add}><Plus size={16} /> Add category</button></AdminPageHeader>
-    <div className="admin-toolbar"><div className="admin-search"><Search size={16} /><input placeholder="Search categories" value={query} onChange={(event) => setQuery(event.target.value)} /></div><div className="admin-tabs"><button className={group === 'all' ? 'is-active' : ''} onClick={() => setGroup('all')}>All</button><button className={group === 'sportswear' ? 'is-active' : ''} onClick={() => setGroup('sportswear')}>Sportswear</button><button className={group === 'activewear' ? 'is-active' : ''} onClick={() => setGroup('activewear')}>Activewear</button></div></div>
+    <AdminPageHeader eyebrow="PRODUCT CATALOGUE" title="Categories" description="The categories on the website. Upload a cover photo, see how many designs each one shows, and jump to its designs to edit them." />
+    <div className="admin-toolbar">
+      <div className="admin-search"><Search size={16} /><input placeholder="Search categories" value={query} onChange={(event) => setQuery(event.target.value)} /></div>
+      <div className="admin-tabs">
+        {(['all', 'sportswear', 'activewear'] as const).map((value) => <button key={value} className={group === value ? 'is-active' : ''} onClick={() => setGroup(value)}>{value === 'all' ? 'All' : value === 'sportswear' ? 'Sportswear' : 'Activewear'}</button>)}
+      </div>
+    </div>
     {uploadError && <p className="admin-product-msg is-error" role="alert">{uploadError}</p>}
-    <section className="admin-panel admin-table-panel"><div className="admin-table-head"><span>Category</span><span>Group</span><span>Destination</span><span>Cover photo</span><span>Status</span><span>Order</span></div>{categories.map((category) => <article className={`admin-table-row ${category.enabled ? '' : 'is-disabled'}`} key={category.id}><div className="admin-category-name"><span className="admin-category-thumb" style={category.imagePath ? { backgroundImage: `url(${category.imagePath})` } : undefined}>{!category.imagePath && category.name.slice(0, 1)}</span><input value={category.name} onChange={(event) => update(category.id, { name: event.target.value })} /></div><select value={category.group} onChange={(event) => update(category.id, { group: event.target.value as Category['group'] })}><option value="sportswear">Sportswear</option><option value="activewear">Activewear</option></select><input value={category.href} onChange={(event) => update(category.id, { href: event.target.value })} /><CategoryCoverUpload name={category.name} fallback={category.imagePath} onError={setUploadError} /><button type="button" className={`admin-status ${category.enabled ? 'is-on' : ''}`} onClick={() => update(category.id, { enabled: !category.enabled })}>{category.enabled ? <><Eye size={14} /> Published preview</> : <><EyeOff size={14} /> Hidden</>}</button><div className="admin-row-actions"><button type="button" onClick={() => move(category.id, -1)} aria-label="Move up"><ArrowUp size={14} /></button><button type="button" onClick={() => move(category.id, 1)} aria-label="Move down"><ArrowDown size={14} /></button><button type="button" className="is-danger" onClick={() => updateContent({ ...content, categories: content.categories.filter((item) => item.id !== category.id) })} aria-label="Delete category"><Trash2 size={14} /></button></div></article>)}{categories.length === 0 && <p className="admin-empty">No categories match your search.</p>}</section>
-    <AdminSaveBar />
+    <section className="admin-panel admin-cat-panel">
+      <div className="admin-cat-head"><span>Category</span><span>Cover photo</span><span>Designs</span><span /></div>
+      {rows.map(({ name, group: rowGroup }) => (
+        <article className="admin-cat-row" key={name}>
+          <div className="admin-cat-name"><strong>{name}</strong><small>{rowGroup === 'sportswear' ? 'Sportswear' : 'Activewear'}</small></div>
+          <CategoryCoverUpload name={name} fallback={builtinCovers[name] ?? ''} onError={setUploadError} />
+          <span className="admin-cat-count">{counts ? `${counts[name] ?? 0} on website` : '…'}</span>
+          <div className="admin-cat-links">
+            <Link to={`/admin/products?category=${encodeURIComponent(name)}`} className="admin-button admin-button-secondary">Manage designs <ArrowRight size={14} /></Link>
+            <a href={`/category/${slugify(name)}`} target="_blank" rel="noreferrer" className="admin-icon-action" aria-label={`Open ${name} on the website`} title="Open on website"><ExternalLink size={15} /></a>
+          </div>
+        </article>
+      ))}
+      {rows.length === 0 && <p className="admin-empty">No categories match your search.</p>}
+    </section>
   </>
 }
