@@ -346,3 +346,10 @@
   .admin-cat-row .admin-cover-upload { grid-column: 1 / -1; }
   .admin-cat-links { grid-column: 1 / -1; justify-content: flex-start; }
 }
+
+/* Per-photo titles in the upload preview */
+.admin-upload-previews { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.admin-upload-previews figure { aspect-ratio: auto; display: flex; flex-direction: column; }
+.admin-upload-previews img { aspect-ratio: 4 / 5; height: auto; }
+.admin-upload-title { width: 100%; padding: 8px; color: #0c1a32; border: 0; border-top: 1px solid #dde3ec; font: 400 12px Inter, sans-serif; }
+.admin-upload-title:focus-visible { outline: 2px solid #ff6a13; outline-offset: -2px; }

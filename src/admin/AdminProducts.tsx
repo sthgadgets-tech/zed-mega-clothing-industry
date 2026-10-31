@@ -15,6 +15,8 @@ export function AdminProducts() {
   const [products, setProducts] = useState<AdminProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [files, setFiles] = useState<File[]>([])
+  // One title per photo, so a batch of designs doesn't end up as 'Name 1, Name 2, Name 3'.
+  const [titles, setTitles] = useState<string[]>([])
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [busy, setBusy] = useState(false)
@@ -28,7 +30,9 @@ export function AdminProducts() {
   // Adds to the current pick instead of replacing it, so photos can be dropped in batches.
   const addFiles = (list: FileList | null) => {
     const picked = Array.from(list ?? []).filter((file) => /^image\/(jpeg|png|webp)$/.test(file.type))
-    if (picked.length) setFiles((current) => [...current, ...picked])
+    if (!picked.length) return
+    setFiles((current) => [...current, ...picked])
+    setTitles((current) => [...current, ...picked.map(() => '')])
     setMessage(null)
   }
 
@@ -53,12 +57,12 @@ export function AdminProducts() {
     if (!files.length) return setMessage({ type: 'error', text: 'Choose at least one photo.' })
     setBusy(true)
     setMessage(null)
-    const name = title.trim() || `Custom ${category}`
     let done = 0
     for (const [index, file] of files.entries()) {
       try {
         const image = await toWebp(file)
-        const response = await authRequest('POST', '/api/products', { category, title: files.length > 1 ? `${name} ${index + 1}` : name, description, image })
+        const name = titles[index]?.trim() || title.trim() || `Custom ${category}`
+        const response = await authRequest('POST', '/api/products', { category, title: name, description, image })
         if (!response.ok) throw new Error(((await response.json().catch(() => ({}))) as { error?: string }).error || 'Upload failed.')
         done += 1
       } catch (error) {
@@ -67,9 +71,11 @@ export function AdminProducts() {
       }
     }
     setBusy(false)
+    // Keep whatever didn't upload so it can be retried without picking again.
+    setFiles((current) => current.slice(done))
+    setTitles((current) => current.slice(done))
     if (done === files.length) {
       setMessage({ type: 'ok', text: `${done} photo${done > 1 ? 's' : ''} added to ${category}.` })
-      setFiles([])
       setFileKey((key) => key + 1)
       setTitle('')
       setDescription('')
@@ -91,7 +97,7 @@ export function AdminProducts() {
             <optgroup label="Activewear">{activewear.map((item) => <option key={item}>{item}</option>)}</optgroup>
           </select>
         </label>
-        <label className="admin-field">Product title
+        <label className="admin-field">Default title (for photos left blank below)
           <input value={title} maxLength={120} placeholder={`Custom ${category}`} onChange={(event) => setTitle(event.target.value)} />
         </label>
         <label className="admin-field admin-field-wide">Short description (optional)
@@ -116,7 +122,8 @@ export function AdminProducts() {
           {previews.map(({ file, url }, index) => (
             <figure key={url}>
               <img src={url} alt={file.name} />
-              <button type="button" onClick={() => setFiles((current) => current.filter((_, i) => i !== index))} aria-label={`Remove ${file.name}`}><X size={14} /></button>
+              <button type="button" onClick={() => { setFiles((current) => current.filter((_, i) => i !== index)); setTitles((current) => current.filter((_, i) => i !== index)) }} aria-label={`Remove ${file.name}`}><X size={14} /></button>
+              <input className="admin-upload-title" value={titles[index] ?? ''} maxLength={120} placeholder={title.trim() || `Custom ${category}`} aria-label={`Title for ${file.name}`} onChange={(event) => setTitles((current) => current.map((value, i) => (i === index ? event.target.value : value)))} />
             </figure>
           ))}
         </div>
