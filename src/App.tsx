@@ -1,11 +1,12 @@
 import { lazy, Suspense, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, Route, Routes, useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Clock, Globe2, Hash, Layers, Mail, MessageCircle, PackageCheck, Palette, Phone, Printer, Scissors, ShieldCheck, Sparkles, Tag, X } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Images, ChevronDown, ChevronRight, Clock, Globe2, Hash, Layers, Mail, MessageCircle, PackageCheck, Palette, Phone, Printer, Scissors, ShieldCheck, Sparkles, Tag, X } from 'lucide-react'
 import { cn } from './lib/cn'
 import { HeaderAnnouncementBar } from './components/HeaderAnnouncementBar'
 import { ProductCarousel } from './components/ProductCarousel'
-import { useCatalog } from './lib/catalog'
+import { useCatalog, type CatalogProduct } from './lib/catalog'
+import { ProductGallery } from './components/ProductGallery'
 import { WhatsAppButton } from './components/WhatsAppButton'
 import { ScrollToTop } from './components/ScrollToTop'
 import { SocialLinks } from './components/SocialLinks'
@@ -531,6 +532,7 @@ function Categories() {
 function CategoryPage() {
   const coverOf = useCoverOf()
   const catalog = useCatalog()
+  const [galleryFor, setGalleryFor] = useState<CatalogProduct | null>(null)
   const { slug } = useParams()
   const { pathname } = useLocation()
   // Old links to /category/streetwear still work after the rename.
@@ -547,7 +549,7 @@ function CategoryPage() {
   // Admin uploads come first, then built-in designs (with any admin edits applied).
   const listed = catalog.filter((product) => product.category === name)
   // Categories without showcase items yet still get one card built from their cover image.
-  const products = listed.length ? listed : [{ id: slugify(name), title: `Custom ${name}`, image: coverOf(name), description: `${name} made to your design, fabric, and branding.`, moq: 'MOQ 50 PCS' }]
+  const products = listed.length ? listed : [{ id: slugify(name), category: name, title: `Custom ${name}`, image: coverOf(name), description: `${name} made to your design, fabric, and branding.`, moq: 'MOQ 50 PCS' }]
   const quoteHref = `/quote?product=${encodeURIComponent(name)}`
 
   return <>
@@ -585,7 +587,7 @@ function CategoryPage() {
           <div className="catalog-grid">
             {products.map((product) => (
               <article className="catalog-card" key={product.id}>
-                <div className="catalog-card-img"><img src={product.image} alt={product.title} loading="lazy" decoding="async" /><span>{product.moq}</span></div>
+                <button type="button" className="catalog-card-img" onClick={() => setGalleryFor(product)} aria-label={`View photos of ${product.title}`}><img src={product.image} alt={product.title} loading="lazy" decoding="async" /><span>{product.moq}</span>{product.gallery?.length ? <em className="catalog-card-photos"><Images size={13} /> +{product.gallery.length} photos</em> : null}</button>
                 <div className="catalog-card-body">
                   <h3>{product.title}</h3>
                   <p>{product.description}</p>
@@ -600,6 +602,7 @@ function CategoryPage() {
         </section>
       </div>
     </main>
+    {galleryFor && <ProductGallery title={galleryFor.title} photos={[galleryFor.image, ...(galleryFor.gallery ?? [])]} onClose={() => setGalleryFor(null)} />}
     <Footer />
   </>
 }

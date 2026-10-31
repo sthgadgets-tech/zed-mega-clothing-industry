@@ -5,7 +5,10 @@
 //   PATCH  /api/products?id=<id>                  admin: edit { title?, description?, category?, image? }
 //   DELETE /api/products?id=<id>                  admin: delete an upload, or hide a built-in design
 //   POST   /api/products?action=restore&id=<id>   admin: undo every edit to a built-in design
-// Uploads live in `products`; edits to built-in designs live in `product_overrides`.
+//   POST   /api/products?action=add-photo&id=<id> admin: extra gallery photo { image }
+//   DELETE /api/products?photo=<photoId>          admin: remove one gallery photo
+// Uploads live in `products`; edits to built-in designs live in `product_overrides`;
+// extra gallery photos for any design live in `product_photos`.
 // Image bytes are served by /api/product-image.
 
 import { Binary, ObjectId } from 'mongodb'
@@ -21,6 +24,7 @@ const imagePattern = /^data:(image\/(?:webp|jpeg|png));base64,([A-Za-z0-9+/=]+)$
 const objectIdPattern = /^[a-f0-9]{24}$/
 
 type UploadDoc = { _id: ObjectId; category: string; title: string; description: string; contentType: string; image: Binary; createdAt: Date }
+type PhotoDoc = { _id: ObjectId; productId: string; contentType: string; image: Binary; createdAt: Date }
 type OverrideDoc = { id: string; title?: string; description?: string; category?: string; hidden?: boolean; contentType?: string; image?: Binary; updatedAt: Date }
 
 function clean(value: unknown, max: number) {
@@ -45,10 +49,17 @@ async function list(request: Request) {
   const category = params.get('category')
   const includeHidden = params.get('all') === '1' && isAdmin(request)
   const db = await getDb()
-  const [uploads, overrides] = await Promise.all([
+  const [uploads, overrides, photos] = await Promise.all([
     db.collection<UploadDoc>('products').find(category ? { category } : {}, { projection: { image: 0 } }).sort({ createdAt: -1 }).toArray(),
     db.collection<OverrideDoc>('product_overrides').find({}, { projection: { image: 0 } }).toArray(),
+    db.collection<PhotoDoc>('product_photos').find({}, { projection: { image: 0 } }).sort({ createdAt: 1 }).toArray(),
   ])
+  const galleryById = new Map<string, string[]>()
+  for (const photo of photos) {
+    const urls = galleryById.get(photo.productId) ?? []
+    urls.push(`/api/product-image?photo=${photo._id.toHexString()}`)
+    galleryById.set(photo.productId, urls)
+  }
   const overrideById = new Map(overrides.map((doc) => [doc.id, doc]))
 
   const uploaded = uploads.map((doc) => ({
@@ -60,6 +71,7 @@ async function list(request: Request) {
     moq: 'MOQ 50 PCS',
     tag: 'kit' as const,
     source: 'upload' as const,
+    gallery: galleryById.get(doc._id.toHexString()) ?? [],
   }))
 
   const builtin = showcaseProducts.map((product) => {
@@ -71,6 +83,7 @@ async function list(request: Request) {
       category: edit?.category ?? product.category,
       image: edit?.contentType ? `/api/product-image?id=${product.id}&v=${edit.updatedAt.getTime()}` : product.image,
       source: 'builtin' as const,
+      gallery: galleryById.get(product.id) ?? [],
       edited: !!edit,
       hidden: !!edit?.hidden,
     }
@@ -132,11 +145,32 @@ async function remove(id: string) {
   const db = await getDb()
   if (objectIdPattern.test(id)) {
     await db.collection('products').deleteOne({ _id: new ObjectId(id) })
+    await db.collection('product_photos').deleteMany({ productId: id })
   } else {
     if (!builtinById.has(id)) return Response.json({ error: 'Product not found.' }, { status: 404 })
     // Built-in designs ship with the code, so "delete" hides them until restored.
     await db.collection('product_overrides').updateOne({ id }, { $set: { id, hidden: true, updatedAt: new Date() } }, { upsert: true })
   }
+  return Response.json({ ok: true })
+}
+
+async function addPhoto(request: Request, id: string) {
+  const db = await getDb()
+  const exists = objectIdPattern.test(id) ? await db.collection('products').countDocuments({ _id: new ObjectId(id) }) : builtinById.has(id)
+  if (!exists) return Response.json({ error: 'Product not found.' }, { status: 404 })
+  const body = (await request.json().catch(() => null)) as Record<string, unknown> | null
+  const image = parseImage(body?.image)
+  if (!image) return Response.json({ error: 'Upload a WebP, JPEG or PNG image.' }, { status: 400 })
+  if ('error' in image) return Response.json({ error: image.error }, { status: 400 })
+  if (await db.collection('product_photos').countDocuments({ productId: id }) >= 12) return Response.json({ error: 'A design can have up to 12 extra photos.' }, { status: 400 })
+  const result = await db.collection('product_photos').insertOne({ productId: id, ...image, createdAt: new Date() })
+  return Response.json({ id: result.insertedId.toHexString() }, { status: 201 })
+}
+
+async function removePhoto(photoId: string) {
+  if (!objectIdPattern.test(photoId)) return Response.json({ error: 'Invalid photo id.' }, { status: 400 })
+  const db = await getDb()
+  await db.collection('product_photos').deleteOne({ _id: new ObjectId(photoId) })
   return Response.json({ ok: true })
 }
 
@@ -154,7 +188,9 @@ export async function handleProducts(request: Request): Promise<Response> {
     if (!isAdmin(request)) return Response.json({ error: 'Please sign in again.' }, { status: 401 })
     const params = new URL(request.url).searchParams
     const id = params.get('id') ?? ''
-    if (request.method === 'POST') return params.get('action') === 'restore' ? await restore(id) : await create(request)
+    const action = params.get('action')
+    if (request.method === 'POST') return action === 'restore' ? await restore(id) : action === 'add-photo' ? await addPhoto(request, id) : await create(request)
+    if (request.method === 'DELETE' && params.get('photo')) return await removePhoto(params.get('photo')!)
     if (!id) return Response.json({ error: 'Missing product id.' }, { status: 400 })
     return request.method === 'PATCH' ? await edit(request, id) : await remove(id)
   } catch (error) {

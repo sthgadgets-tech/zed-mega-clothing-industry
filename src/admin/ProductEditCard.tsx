@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Eye, EyeOff, ImageUp, Loader2, Pencil, RotateCcw, Trash2 } from 'lucide-react'
+import { Eye, EyeOff, ImagePlus, ImageUp, Loader2, Pencil, RotateCcw, Trash2, X } from 'lucide-react'
 import { activewear, sports } from '../lib/categories'
 import { authRequest, toWebp } from './upload'
 
@@ -12,6 +12,7 @@ export type AdminProduct = {
   source: 'builtin' | 'upload'
   edited?: boolean
   hidden?: boolean
+  gallery?: string[]
 }
 
 async function send(method: string, url: string, body?: unknown) {
@@ -30,12 +31,14 @@ export function ProductEditCard({ product, onChanged, onError }: { product: Admi
   const preview = photo ? URL.createObjectURL(photo) : product.image
   const builtin = product.source === 'builtin'
 
-  const run = async (action: () => Promise<void>) => {
+  const run = async (action: () => Promise<void>, keepEditing = false) => {
     setBusy(true)
     try {
       await action()
-      setEditing(false)
-      setPhoto(null)
+      if (!keepEditing) {
+        setEditing(false)
+        setPhoto(null)
+      }
       onChanged()
     } catch (error) {
       onError(`${product.title}: ${error instanceof Error ? error.message : 'Something went wrong.'}`)
@@ -58,6 +61,20 @@ export function ProductEditCard({ product, onChanged, onError }: { product: Admi
       ? `Hide "${product.title}" from the website? You can restore it later.`
       : `Delete "${product.title}" permanently?`
     if (window.confirm(question)) run(() => send('DELETE', `/api/products?id=${encodeURIComponent(product.id)}`))
+  }
+
+  // Extra photos are saved straight away (not on Save), one request per photo.
+  const addPhotos = (list: FileList | null) => {
+    const picked = Array.from(list ?? []).filter((file) => /^image\/(jpeg|png|webp)$/.test(file.type))
+    if (!picked.length) return
+    run(async () => {
+      for (const file of picked) await send('POST', `/api/products?action=add-photo&id=${encodeURIComponent(product.id)}`, { image: await toWebp(file) })
+    }, true)
+  }
+
+  const removePhoto = (url: string) => {
+    const photoId = new URL(url, window.location.origin).searchParams.get('photo')
+    if (photoId && window.confirm('Remove this photo from the gallery?')) run(() => send('DELETE', `/api/products?photo=${photoId}`), true)
   }
 
   const restore = () => {
@@ -89,6 +106,18 @@ export function ProductEditCard({ product, onChanged, onError }: { product: Admi
               <optgroup label="Activewear">{activewear.map((item) => <option key={item}>{item}</option>)}</optgroup>
             </select>
           </label>
+          <div className="admin-edit-gallery">
+            <span>More photos ({product.gallery?.length ?? 0})</span>
+            <div>
+              {product.gallery?.map((url) => (
+                <figure key={url}><img src={url} alt="" loading="lazy" /><button type="button" disabled={busy} onClick={() => removePhoto(url)} aria-label="Remove photo"><X size={12} /></button></figure>
+              ))}
+              <label className={`admin-edit-gallery-add ${busy ? 'is-busy' : ''}`} title="Add photos">
+                {busy ? <Loader2 size={16} className="admin-spin" /> : <ImagePlus size={16} />}
+                <input type="file" hidden multiple accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={(event) => { addPhotos(event.target.files); event.target.value = '' }} />
+              </label>
+            </div>
+          </div>
           <div className="admin-edit-actions">
             <button type="button" className="admin-button admin-button-primary" disabled={busy || !title.trim()} onClick={save}>{busy ? <Loader2 size={14} className="admin-spin" /> : null} Save</button>
             <button type="button" className="admin-button admin-button-secondary" disabled={busy} onClick={() => { setEditing(false); setPhoto(null); setTitle(product.title); setDescription(product.description); setCategory(product.category) }}>Cancel</button>

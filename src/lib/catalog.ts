@@ -13,6 +13,8 @@ export type CatalogProduct = {
   image: string
   description: string
   moq: string
+  // Extra photos after the main one, added from the admin panel.
+  gallery?: string[]
 }
 
 let products: CatalogProduct[] = showcaseProducts

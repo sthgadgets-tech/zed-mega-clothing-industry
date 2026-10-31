@@ -6,10 +6,15 @@ import { ObjectId, type Binary } from 'mongodb'
 import { getDb } from './_db.js'
 
 export async function handleProductImage(request: Request): Promise<Response> {
-  const id = new URL(request.url).searchParams.get('id') ?? ''
-  if (!id || id.length > 64) return new Response('Not found', { status: 404 })
+  const params = new URL(request.url).searchParams
+  const photo = params.get('photo') ?? ''
+  const id = params.get('id') ?? ''
+  if (photo ? !/^[a-f0-9]{24}$/.test(photo) : !id || id.length > 64) return new Response('Not found', { status: 404 })
   const db = await getDb()
-  const doc = /^[a-f0-9]{24}$/.test(id)
+  // ?photo=<id> is an extra gallery photo (`product_photos`).
+  const doc = photo
+    ? await db.collection<{ contentType: string; image: Binary }>('product_photos').findOne({ _id: new ObjectId(photo) }, { projection: { contentType: 1, image: 1 } })
+    : /^[a-f0-9]{24}$/.test(id)
     ? await db.collection<{ contentType: string; image: Binary }>('products').findOne({ _id: new ObjectId(id) }, { projection: { contentType: 1, image: 1 } })
     : await db.collection<{ contentType?: string; image?: Binary }>('product_overrides').findOne({ id }, { projection: { contentType: 1, image: 1 } })
   if (!doc?.image || !doc.contentType) return new Response('Not found', { status: 404 })
