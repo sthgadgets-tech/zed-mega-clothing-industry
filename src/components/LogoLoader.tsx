@@ -15,7 +15,8 @@ type Phase = 'loading' | 'exit' | 'done'
 
 // The intro plays on every full page load; moving between pages inside the app doesn't replay it.
 export function LogoLoader() {
-  const [phase, setPhase] = useState<Phase>('loading')
+  // The intro is for customers only; admin pages open straight away.
+  const [phase, setPhase] = useState<Phase>(() => window.location.pathname.startsWith('/admin') ? 'done' : 'loading')
   const [progress, setProgress] = useState(1)
   const [soundBlocked, setSoundBlocked] = useState(false)
 

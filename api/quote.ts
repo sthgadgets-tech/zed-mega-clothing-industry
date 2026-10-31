@@ -4,8 +4,10 @@
 //   QUOTE_FROM       Verified sender, e.g. "ZED MEGA <quotes@yourdomain.com>"
 //   QUOTE_ADMIN_TO   Address that receives new quote requests
 //   MONGODB_URI      Optional; when set, every request is also saved (see _db.ts)
+//   VAPID_*          Optional; when set, admin devices get a push notification (see _push.ts)
 
 import { getDb } from './_db'
+import { notifyAdmins } from './_push'
 import { activewear, sports } from '../src/lib/categories'
 
 type QuoteInput = {
@@ -81,6 +83,13 @@ export async function handleQuote(request: Request): Promise<Response> {
     } catch (error) {
       console.error('Could not save quote to MongoDB', error)
     }
+  }
+
+  // Ping admin phones before email, so the team hears about it even if email is down.
+  try {
+    await notifyAdmins({ title: `New quote: ${q.product}`, body: `${q.name}${q.company ? ` (${q.company})` : ''} · ${q.quantity} pcs`, url: '/admin', tag: 'quote' })
+  } catch (error) {
+    console.error('Could not send admin push', error)
   }
 
   const rows = [

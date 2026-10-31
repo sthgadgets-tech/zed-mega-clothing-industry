@@ -1,6 +1,7 @@
 import { ArrowRight, FileText, Image, Layers3, Shirt } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAdmin } from './AdminLayout'
+import { AdminNotifications } from './AdminNotifications'
 import { HOMEPAGE_SECTION_KEYS, SECTION_LABELS } from './types'
 
 export function AdminDashboard() {
@@ -40,6 +41,7 @@ export function AdminDashboard() {
       </div>
       <img src="/images/logo-shield.webp" alt="" className="admin-welcome-logo" />
     </section>
+    <AdminNotifications />
     <p className="admin-demo-caption">Figures come from starter demo content in this browser, not live website statistics.</p>
     <div className="admin-stats-grid">{stats.map(({ label, value, detail, icon: Icon, tone }) => <article className={`admin-stat-card tone-${tone}`} key={label}><div className="admin-stat-top"><span>{label}</span><span className="admin-stat-icon"><Icon size={18} /></span></div><strong>{value}</strong><small>{detail}</small></article>)}</div>
     <section className="admin-panel admin-section-overview">

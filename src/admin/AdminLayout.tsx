@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import { signOut } from './auth'
+import { setupAdminPwa } from './pwa'
 import { AlertTriangle, ArrowLeft, FolderKanban, ImagePlus, HelpCircle, Home, Image, LayoutDashboard, LogOut, Menu, Store, RotateCcw, Save, Settings, X } from 'lucide-react'
 import { clearDraft, loadDraft, saveDraft } from './localDraftStore'
 import { cloneInitialContent } from './mockContent'
@@ -53,6 +54,8 @@ export function AdminLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
+
+  useEffect(() => { setupAdminPwa() }, [])
 
   // Close the mobile menu after navigation.
   useEffect(() => { setMenuOpen(false) }, [location.pathname])

@@ -1,0 +1,17 @@
+{
+  "id": "/admin",
+  "name": "ZED MEGA Admin",
+  "short_name": "ZED Admin",
+  "description": "ZED MEGA content studio: quote alerts, product photos and site content.",
+  "start_url": "/admin",
+  "scope": "/admin",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#06132b",
+  "theme_color": "#06132b",
+  "icons": [
+    { "src": "/admin-icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/admin-icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/admin-icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

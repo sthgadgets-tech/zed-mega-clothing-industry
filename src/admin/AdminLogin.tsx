@@ -1,7 +1,9 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { Eye, EyeOff, LockKeyhole, ShieldAlert } from 'lucide-react'
 import { isSignedIn, signIn } from './auth'
+import { setupAdminPwa } from './pwa'
+import './admin.css'
 import './admin-login.css'
 
 // Sends visitors who are not signed in to the login page, and remembers the
@@ -15,6 +17,7 @@ export function RequireAdmin({ children }: { children: ReactNode }) {
 }
 
 export function AdminLogin() {
+  useEffect(() => { setupAdminPwa() }, [])
   const navigate = useNavigate()
   const location = useLocation()
   const requested = (location.state as { from?: string } | null)?.from
