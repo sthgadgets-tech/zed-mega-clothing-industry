@@ -1588,3 +1588,37 @@ button, a, input, select, textarea, label { -webkit-tap-highlight-color: transpa
 /* Manufacturing steps: real photos in a clean circle (the irregular clip shapes suit the texture, not photos) */
 .process-shape.has-photo { width: 100%; height: 100%; inset: 0; background-size: cover; background-position: center; clip-path: circle(50% at 50% 50%); transform: none; opacity: 1; }
 .process-card:hover .process-shape.has-photo { filter: saturate(1.1) brightness(1.05); transform: scale(1.06); }
+
+/* About us story (inside the dark #about section) */
+.about-story { position: relative; z-index: 2; display: grid; grid-template-columns: .9fr 1.1fr; gap: 28px 56px; margin-top: 80px; padding-top: 64px; border-top: 1px solid rgba(255,255,255,.1); }
+.about-intro h2 { color: white; }
+.about-intro h2 span { color: var(--red); }
+.about-intro > p { margin: 0 0 16px; color: #c3cfdf; font-size: 15px; line-height: 1.7; }
+.about-intro > p strong { color: white; }
+.about-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+.about-facts div { padding: 16px 18px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; }
+.about-facts strong { display: block; color: white; font-family: 'Barlow Condensed', sans-serif; font-size: 34px; line-height: 1; }
+.about-facts span { display: block; margin-top: 6px; color: #9fb1cc; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.about-points { display: grid; gap: 12px; align-content: start; }
+.about-point { display: grid; grid-template-columns: 44px 1fr; gap: 16px; padding: 20px 22px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09); border-radius: 16px; transition: border-color .25s ease, background .25s ease, transform .25s ease; }
+.about-point:hover { background: rgba(255,255,255,.07); border-color: rgba(255,106,19,.45); transform: translateX(4px); }
+.about-point-icon { display: grid; place-items: center; width: 44px; height: 44px; color: var(--red); background: rgba(255,106,19,.12); border-radius: 12px; }
+.about-point h3 { margin: 0 0 6px; color: white; font-family: 'Barlow Condensed', sans-serif; font-size: 20px; letter-spacing: .02em; text-transform: uppercase; }
+.about-point p { margin: 0; color: #b8c6da; font-size: 14px; line-height: 1.65; }
+.about-cta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px 28px; padding: 28px 30px; background: linear-gradient(120deg, rgba(255,106,19,.16), rgba(47,107,255,.1)); border: 1px solid rgba(255,106,19,.3); border-radius: 20px; }
+.about-cta > p { flex: 1 1 280px; margin: 0; color: #dbe5f3; font-size: 16px; }
+.about-cta > p strong { color: white; }
+.about-cta-links { display: flex; flex-wrap: wrap; gap: 12px; }
+.about-cta-links .button { gap: 10px; text-transform: none; letter-spacing: .02em; }
+.about-socials { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 10px 24px; }
+.about-socials a { color: #9fb1cc; font-size: 13px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.about-socials a:hover { color: white; }
+@media (max-width: 960px) { .about-story { grid-template-columns: minmax(0, 1fr); margin-top: 56px; padding-top: 48px; } }
+@media (max-width: 560px) {
+  .about-facts strong { font-size: 28px; }
+  .about-point { grid-template-columns: 38px 1fr; gap: 12px; padding: 16px; }
+  .about-point-icon { width: 38px; height: 38px; }
+  .about-cta { padding: 22px 18px; }
+  .about-cta-links, .about-cta-links .button { width: 100%; justify-content: center; }
+  .about-cta-links .button { font-size: 13px; }
+}

@@ -269,9 +269,60 @@ function Audience() {
             ))}
           </div>
         </div>
+        <AboutStory />
       </div>
       <div className="red-accent red-accent-left" />
     </section>
+  )
+}
+
+const aboutFacts = [
+  ['2015', 'Founded in Sialkot'],
+  ['500+', 'Brands served'],
+  ['50 pcs', 'Minimum per style'],
+  ['7 days', 'Sample turnaround'],
+]
+
+const aboutPoints = [
+  [Scissors, 'Your design, our factory', 'Brands, teamwear companies, clubs, schools and gyms send us a design file or reference image. We handle the patterns, fabric sourcing, printing or embroidery, sewing, checking and packing. We don’t sell from stock, sell designs of our own, or offer a design service.'],
+  [ShieldCheck, 'Your design stays yours', 'We never sell or reuse your design, and we’ll sign an NDA if you ask.'],
+  [PackageCheck, 'Sample first, then bulk', 'Every order starts with a sample, made in about 7 days and shipped to you. Samples are charged separately, and bulk production starts only after you approve yours. Mix sizes within the 50-piece minimum at no extra cost.'],
+  [Clock, 'Clear timelines', 'Production takes 10 to 12 business days after your deposit clears. Shipping takes 8 to 10 days by DHL, FedEx or UPS.'],
+  [Tag, 'True private label', 'Your brand goes on the neck labels, hang tags, care labels and packaging. Ours doesn’t appear anywhere on the product.'],
+] as const
+
+function AboutStory() {
+  return (
+    <div className="about-story">
+      <div className="about-intro">
+        <SectionLabel light>About us</SectionLabel>
+        <h2>Made in Sialkot.<br /><span>Made to your design.</span></h2>
+        <p><strong>ZED MEGA Clothing Industry</strong> is a custom sportswear and activewear manufacturer in Sialkot, Pakistan. We make team uniforms, sportswear and activewear to the buyer’s own design, from 50 pieces per style.</p>
+        <p>We started in 2015 and are a member of the Sialkot Chamber of Commerce and Industry. Sialkot has been making sports goods for export for generations, and we’re proud to be part of that.</p>
+        <div className="about-facts">
+          {aboutFacts.map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}
+        </div>
+      </div>
+      <div className="about-points">
+        {aboutPoints.map(([Icon, title, text]) => (
+          <div className="about-point" key={title}>
+            <span className="about-point-icon"><Icon size={20} /></span>
+            <div><h3>{title}</h3><p>{text}</p></div>
+          </div>
+        ))}
+      </div>
+      <div className="about-cta">
+        <p>We’ve made orders for more than 500 brands. <strong>Send your design to start yours.</strong></p>
+        <div className="about-cta-links">
+          <a className="button button-red" href="https://wa.me/923286250355" target="_blank" rel="noreferrer"><MessageCircle size={17} /> WhatsApp +92 328 625 0355</a>
+          <a className="button button-outline" href={inquiryMailto()}><Mail size={17} /> {CONTACT_EMAIL}</a>
+        </div>
+        <div className="about-socials">
+          <a href="https://www.instagram.com/zed_mega" target="_blank" rel="noreferrer">Instagram store · @zed_mega</a>
+          <a href="https://www.facebook.com/share/1JAgRb88Pg/" target="_blank" rel="noreferrer">Facebook store · zed_mega</a>
+        </div>
+      </div>
+    </div>
   )
 }
 
