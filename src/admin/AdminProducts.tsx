@@ -1,5 +1,5 @@
-import { useEffect, useState, type FormEvent } from 'react'
-import { ImagePlus, Loader2, Trash2 } from 'lucide-react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { ImagePlus, Loader2, Trash2, UploadCloud, X } from 'lucide-react'
 import { AdminPageHeader } from './AdminLayout'
 import { getToken } from './auth'
 import { activewear, sports } from '../lib/categories'
@@ -39,6 +39,17 @@ export function AdminProducts() {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<Message | null>(null)
   const [fileKey, setFileKey] = useState(0)
+  const [dragging, setDragging] = useState(false)
+  const previews = useMemo(() => files.map((file) => ({ file, url: URL.createObjectURL(file) })), [files])
+
+  useEffect(() => () => previews.forEach(({ url }) => URL.revokeObjectURL(url)), [previews])
+
+  // Adds to the current pick instead of replacing it, so photos can be dropped in batches.
+  const addFiles = (list: FileList | null) => {
+    const picked = Array.from(list ?? []).filter((file) => /^image\/(jpeg|png|webp)$/.test(file.type))
+    if (picked.length) setFiles((current) => [...current, ...picked])
+    setMessage(null)
+  }
 
   const load = async () => {
     setLoading(true)
@@ -108,11 +119,31 @@ export function AdminProducts() {
         <label className="admin-field admin-field-wide">Short description (optional)
           <textarea rows={2} value={description} maxLength={300} onChange={(event) => setDescription(event.target.value)} />
         </label>
-        <label className="admin-field admin-field-wide">Photos
-          <input key={fileKey} type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => setFiles(Array.from(event.target.files ?? []))} />
-        </label>
+        <div className="admin-field admin-field-wide">Photos
+          <label
+            className={`admin-upload-drop ${dragging ? 'is-dragging' : ''}`}
+            onDragOver={(event) => { event.preventDefault(); setDragging(true) }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(event) => { event.preventDefault(); setDragging(false); addFiles(event.dataTransfer.files) }}
+          >
+            <UploadCloud size={28} />
+            <strong>Drag photos here or tap to choose</strong>
+            <span>JPG, PNG or WebP · several at once · big phone photos are resized automatically</span>
+            <input key={fileKey} type="file" hidden accept="image/jpeg,image/png,image/webp" multiple onChange={(event) => addFiles(event.target.files)} />
+          </label>
+        </div>
       </div>
-      {files.length > 0 && <p className="admin-field-help">{files.length} photo{files.length > 1 ? 's' : ''} selected. Large photos are resized automatically.</p>}
+      {previews.length > 0 && (
+        <div className="admin-upload-previews">
+          {previews.map(({ file, url }, index) => (
+            <figure key={url}>
+              <img src={url} alt={file.name} />
+              <button type="button" onClick={() => setFiles((current) => current.filter((_, i) => i !== index))} aria-label={`Remove ${file.name}`}><X size={14} /></button>
+            </figure>
+          ))}
+        </div>
+      )}
+      {files.length > 0 && <p className="admin-field-help">{files.length} photo{files.length > 1 ? 's' : ''} ready to upload to {category}.</p>}
       {message && <p className={`admin-product-msg is-${message.type}`}>{message.text}</p>}
       <button type="submit" className="admin-button admin-button-primary admin-product-submit" disabled={busy}>
         {busy ? <><Loader2 size={16} className="admin-spin" /> Uploading…</> : <><ImagePlus size={16} /> Upload to {category}</>}

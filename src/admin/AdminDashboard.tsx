@@ -1,4 +1,4 @@
-import { ArrowRight, FileText, Image, Layers3, Shirt } from 'lucide-react'
+import { ArrowRight, FileText, Image, ImagePlus, Layers3, Shirt } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAdmin } from './AdminLayout'
 import { AdminNotifications } from './AdminNotifications'
@@ -37,7 +37,7 @@ export function AdminDashboard() {
         <p className="admin-eyebrow">CONTENT STUDIO</p>
         <h1>Welcome back 👋</h1>
         <p>Manage your homepage, categories and media for ZED MEGA from one place.</p>
-        <div className="admin-welcome-actions"><Link to="/admin/homepage" className="admin-button admin-button-primary">Edit homepage <ArrowRight size={15} /></Link><a href="/" target="_blank" rel="noreferrer" className="admin-button admin-welcome-ghost">Preview site</a></div>
+        <div className="admin-welcome-actions"><Link to="/admin/products" className="admin-button admin-button-primary"><ImagePlus size={15} /> Upload photos</Link><Link to="/admin/homepage" className="admin-button admin-welcome-ghost">Edit homepage <ArrowRight size={15} /></Link><a href="/" target="_blank" rel="noreferrer" className="admin-button admin-welcome-ghost">Preview site</a></div>
       </div>
       <img src="/images/logo-shield.webp" alt="" className="admin-welcome-logo" />
     </section>

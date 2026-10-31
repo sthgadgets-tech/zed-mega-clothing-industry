@@ -44,7 +44,7 @@ function AdminSidebar({ open, onClose }: { open: boolean; onClose: () => void })
       {navItems.map(({ to, label, icon: Icon, end }) => <NavLink key={to} to={to} end={end} className={({ isActive }) => isActive ? 'is-active' : ''}><Icon size={17} /><span>{label}</span></NavLink>)}
     </nav>
     <a className="admin-view-store" href="/" target="_blank" rel="noreferrer"><Store size={17} /><span>View store</span><ArrowLeft size={15} className="admin-view-store-arrow" /></a>
-    <div className="admin-sidebar-bottom"><span className="admin-demo-dot" />Local preview mode</div>
+    <div className="admin-sidebar-bottom"><span className="admin-demo-dot" />Connected · MongoDB</div>
   </aside>
 }
 

@@ -288,3 +288,14 @@
 .admin-notify-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .admin-notify .admin-product-msg { flex-basis: 100%; margin: 0; }
 @media (max-width: 560px) { .admin-notify-actions, .admin-notify-actions .admin-button { width: 100%; } }
+
+/* Product photo dropzone + previews */
+.admin-upload-drop { display: grid; justify-items: center; gap: 6px; padding: 28px 18px; color: #5b6880; text-align: center; text-transform: none; letter-spacing: 0; font-weight: 400; background: #f8fafc; border: 2px dashed #c9d2df; cursor: pointer; transition: border-color .2s ease, background .2s ease; }
+.admin-upload-drop svg { color: #ff6a13; }
+.admin-upload-drop strong { color: #0c1a32; font-size: 15px; }
+.admin-upload-drop span { font-size: 12px; }
+.admin-upload-drop:hover, .admin-upload-drop.is-dragging { background: #fff7f1; border-color: #ff6a13; }
+.admin-upload-previews { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 10px; margin-top: 14px; }
+.admin-upload-previews figure { position: relative; margin: 0; aspect-ratio: 4 / 5; overflow: hidden; border: 1px solid #dde3ec; background: #f6f8fb; }
+.admin-upload-previews img { width: 100%; height: 100%; object-fit: cover; }
+.admin-upload-previews button { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; width: 24px; height: 24px; padding: 0; color: white; background: rgba(6,19,43,.75); border: 0; border-radius: 50%; cursor: pointer; }
