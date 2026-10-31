@@ -13,20 +13,14 @@ const RING_LENGTH = 100
 
 type Phase = 'loading' | 'exit' | 'done'
 
-// The intro plays once per visit (browser tab session); moving between pages doesn't replay it.
-const SEEN_KEY = 'zedmega-intro-seen'
-function hasSeenIntro() {
-  try { return sessionStorage.getItem(SEEN_KEY) === '1' } catch { return false }
-}
-
+// The intro plays on every full page load; moving between pages inside the app doesn't replay it.
 export function LogoLoader() {
-  const [phase, setPhase] = useState<Phase>(() => hasSeenIntro() ? 'done' : 'loading')
+  const [phase, setPhase] = useState<Phase>('loading')
   const [progress, setProgress] = useState(1)
   const [soundBlocked, setSoundBlocked] = useState(false)
 
   useEffect(() => {
     if (phase === 'done') return
-    try { sessionStorage.setItem(SEEN_KEY, '1') } catch { /* storage blocked: intro just plays again */ }
     document.body.classList.add('is-loading')
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const startedAt = performance.now()
@@ -44,7 +38,7 @@ export function LogoLoader() {
       }, reducedMotion ? 200 : 350)
     }
 
-    // Phones block sound until the visitor taps; show a hint so they can turn it on.
+    // Phones block sound until the visitor taps; a tap on the loader then starts it.
     startIntroAudio().then((playing) => { if (!cancelled && !playing) setSoundBlocked(true) })
     const audio = getIntroAudio()
     audio.addEventListener('ended', finish)
@@ -131,9 +125,7 @@ export function LogoLoader() {
       </div>
       <p className="logo-loader-brand">{BRAND_LABEL}</p>
       <div className="logo-loader-meta"><span>{MESSAGE}</span><strong>{String(percent).padStart(2, '0')}%</strong></div>
-      <p className="logo-loader-tag"><span />{TAGLINE}<span /></p>
-      {soundBlocked && <p className="logo-loader-sound">🔊 Tap anywhere for sound</p>}
-      <p className="logo-loader-foot">© 2026 ZED MEGA · ALL RIGHTS RESERVED</p>
+      <p className="logo-loader-tag"><span />{TAGLINE}<span /></p>      <p className="logo-loader-foot">© 2026 ZED MEGA · ALL RIGHTS RESERVED</p>
     </div>
   )
 }

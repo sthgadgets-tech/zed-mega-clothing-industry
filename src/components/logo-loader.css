@@ -304,16 +304,3 @@ html:has(body.is-loading) {
     clip-path: none;
   }
 }
-
-.logo-loader-sound {
-  margin: 4px 0 0;
-  padding: 8px 14px;
-  color: #eef3ff;
-  border: 1px solid rgba(143, 164, 216, .35);
-  border-radius: 999px;
-  background: rgba(47, 107, 255, .14);
-  font: 600 11px/1 Montserrat, system-ui, sans-serif;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  animation: loader-breathe 2.4s ease-in-out infinite;
-}
