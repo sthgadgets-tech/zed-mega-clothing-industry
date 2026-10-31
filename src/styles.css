@@ -1648,3 +1648,9 @@ button.catalog-card-img { display: block; width: 100%; padding: 0; border: 0; cu
   .gallery-nav { width: 40px; height: 40px; }
   .gallery-thumbs button { width: 56px; height: 68px; }
 }
+
+/* Manufacturing steps: photos as wide rectangles instead of circles */
+.process-orb, .process-card:hover .process-orb { width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 14px; }
+.process-card:hover .process-orb { transform: translateY(-3px); }
+.process-shape.has-photo { clip-path: none; }
+@media (max-width: 700px) { .process-orb, .process-card:hover .process-orb { width: 100%; height: auto; } }
