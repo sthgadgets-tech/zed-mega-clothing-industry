@@ -12,4 +12,4 @@
 .admin-password-toggle:hover { color: #06132b; }
 .admin-login-error { display: flex; align-items: center; gap: 7px; margin: 16px 0 0; color: #e0550a; font-size: 12px; font-weight: 600; }
 .admin-login-submit { width: 100%; margin-top: 24px; }
-@media (max-width: 480px) { .admin-login-card { padding: 30px 24px; } }
+@media (max-width: 480px) { .admin-login-card { min-width: 0; max-width: 100%; padding: 30px 20px; } .admin-login-card h1 { font-size: 34px; } .admin-login-card * { min-width: 0; max-width: 100%; } }

@@ -7,11 +7,20 @@ body.is-loading {
   overflow: hidden;
 }
 
+/* Lock the root too: any wide element would otherwise stretch the mobile layout
+   viewport and push this fixed overlay off-centre. */
+html:has(body.is-loading) {
+  overflow: hidden;
+}
+
 .logo-loader {
   --loader-bg: #02050f;
   --loader-bg-2: #0a1a4a;
   position: fixed;
   inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
   z-index: 1000;
   display: flex;
   flex-direction: column;

@@ -1578,3 +1578,8 @@ button, a, input, select, textarea, label { -webkit-tap-highlight-color: transpa
   .site-header.is-open .mobile-toggle { visibility: hidden; }
   body.nav-locked .scroll-top, body.nav-locked .wa-widget { visibility: hidden; }
 }
+
+/* Phones: no text below 11px (badges, labels, eyebrows) */
+@media (max-width: 700px) {
+  small, .slide-badge, .slide-moq, .quote-badge, .catalog-card-img span, .section-label, .button, .announcement-item, .hero-side-label, .hero-scroll, .marquee-badge, .marquee-inspect-pill, .spec-cards-header span, .spec-card-badge, .category-block-title span, .carrier-row span, .blog-meta, .hbc-pill span, .hbc-origin, .hbc-stat span, .footer-bottom span, .catalog-group h2, .quote-card-header span { font-size: 11px !important; }
+}
