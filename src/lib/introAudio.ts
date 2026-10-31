@@ -18,7 +18,7 @@ function getAudio(): HTMLAudioElement {
       document.body.appendChild(audioInstance)
     }
     audioInstance.volume = 1
-    audioInstance.playbackRate = 1.22
+    audioInstance.playbackRate = 1
     audioInstance.preservesPitch = true
   }
   return audioInstance
@@ -33,7 +33,7 @@ function onUserGesture() {
   }
   const audio = getAudio()
   audio.currentTime = 0
-  audio.playbackRate = 1.22
+  audio.playbackRate = 1
   audio.preservesPitch = true
   audio
     .play()
@@ -71,7 +71,7 @@ export function startIntroAudio() {
   hasStarted = false
   const audio = getAudio()
   audio.currentTime = 0
-  audio.playbackRate = 1.22
+  audio.playbackRate = 1
   audio.preservesPitch = true
 
   const playPromise = audio.play()

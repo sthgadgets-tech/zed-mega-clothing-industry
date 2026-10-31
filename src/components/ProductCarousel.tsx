@@ -12,7 +12,7 @@ export interface ShowcaseProduct {
   moq: string
 }
 
-const showcaseProducts: ShowcaseProduct[] = [
+export const showcaseProducts: ShowcaseProduct[] = [
   {
     id: 'prod-34',
     title: 'Grand Slam Tennis Team Uniform',
@@ -314,6 +314,22 @@ export function ProductCarousel() {
   const [isPaused, setIsPaused] = useState(false)
   const [previewIndex, setPreviewIndex] = useState<number | null>(null)
   const trackRef = useRef<HTMLDivElement>(null)
+  // One slide width plus the track gap, measured so the slide lands flush at every screen size.
+  const [step, setStep] = useState(280)
+
+  useEffect(() => {
+    const track = trackRef.current
+    if (!track) return
+    const measure = () => {
+      const slide = track.firstElementChild as HTMLElement | null
+      if (!slide) return
+      setStep(slide.offsetWidth + (parseFloat(getComputedStyle(track).columnGap) || 0))
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(track)
+    return () => observer.disconnect()
+  }, [activeTab])
   // Phones get a shorter marquee: ~200 animated images is heavy on mobile CPUs.
   const [isSmall] = useState(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches)
   const marqueeSlots = Array.from({ length: (isSmall ? 12 : allImages.length) * 2 })
@@ -438,7 +454,7 @@ export function ProductCarousel() {
             ref={trackRef}
             className="carousel-track"
             style={{
-              transform: `translateX(-${currentIndex * 280}px)`,
+              transform: `translateX(-${currentIndex * step}px)`,
             }}
           >
             {filteredProducts.map((product) => (

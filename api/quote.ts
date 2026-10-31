@@ -6,6 +6,7 @@
 //   MONGODB_URI      Optional; when set, every request is also saved (see _db.ts)
 
 import { getDb } from './_db'
+import { activewear, sports } from '../src/lib/categories'
 
 type QuoteInput = {
   name: string
@@ -18,10 +19,7 @@ type QuoteInput = {
 }
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const products = new Set([
-  'American Football', 'Baseball', 'Basketball', 'Soccer', 'Rugby', 'Ice Hockey', 'Cricket', 'Cycling', 'Golf', 'Tennis',
-  'Hoodies', 'Jackets', 'Sports Bras', 'Leggings', 'Sweatshirts', 'T-Shirts', 'Shorts', 'Joggers',
-])
+const products = new Set([...sports, ...activewear])
 
 function clean(value: unknown, max: number) {
   return typeof value === 'string' ? value.trim().slice(0, max) : ''
@@ -93,9 +91,14 @@ export async function handleQuote(request: Request): Promise<Response> {
 
   try {
     await send(process.env.QUOTE_ADMIN_TO, `New quote request: ${q.product}, ${q.quantity} pcs`, `<table>${table}</table>`)
-    await send(q.email, 'We received your ZED MEGA quote request', `<p>Hi ${escapeHtml(q.name)},</p><p>Thank you. We received your request for ${q.quantity} ${escapeHtml(q.product)} pieces and will reply with pricing and next steps.</p><p>ZED MEGA Clothing Industry, Sialkot</p>`)
   } catch {
     return Response.json({ error: 'We could not send your request. Please try again or message us on WhatsApp.' }, { status: 502 })
+  }
+  // The team already has the request; a failed confirmation must not make the visitor resubmit.
+  try {
+    await send(q.email, 'We received your ZED MEGA quote request', `<p>Hi ${escapeHtml(q.name)},</p><p>Thank you. We received your request for ${q.quantity} ${escapeHtml(q.product)} pieces and will reply with pricing and next steps.</p><p>ZED MEGA Clothing Industry, Sialkot</p>`)
+  } catch (error) {
+    console.error('Could not send quote confirmation', error)
   }
   return Response.json({ ok: true })
 }

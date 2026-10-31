@@ -30,6 +30,7 @@
   gap: 65px;
   align-items: start;
 }
+.quote-page-inner > * { min-width: 0; }
 
 /* --- Left Column: Intro & Trust Highlights --- */
 .quote-intro {

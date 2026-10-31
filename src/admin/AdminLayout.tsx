@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate, useOutletContext } from 'react-router-dom'
 import { signOut } from './auth'
-import { AlertTriangle, ArrowLeft, FolderKanban, HelpCircle, Home, Image, LayoutDashboard, LogOut, Menu, Store, RotateCcw, Save, Settings, X } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, FolderKanban, ImagePlus, HelpCircle, Home, Image, LayoutDashboard, LogOut, Menu, Store, RotateCcw, Save, Settings, X } from 'lucide-react'
 import { clearDraft, loadDraft, saveDraft } from './localDraftStore'
 import { cloneInitialContent } from './mockContent'
 import type { SiteContent } from './types'
@@ -25,6 +25,7 @@ const navItems = [
   { to: '/admin', label: 'Overview', icon: LayoutDashboard, end: true },
   { to: '/admin/homepage', label: 'Homepage', icon: Home, end: false },
   { to: '/admin/categories', label: 'Categories', icon: FolderKanban, end: false },
+  { to: '/admin/products', label: 'Product photos', icon: ImagePlus, end: false },
   { to: '/admin/media', label: 'Media library', icon: Image, end: false },
   { to: '/admin/faq', label: 'FAQs & blog', icon: HelpCircle, end: false },
   { to: '/admin/settings', label: 'Site settings', icon: Settings, end: false },

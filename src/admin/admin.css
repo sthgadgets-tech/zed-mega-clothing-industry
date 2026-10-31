@@ -254,3 +254,18 @@
 .admin-view-store:hover { transform: translateY(-2px); box-shadow: 0 12px 24px rgba(255,106,19,.38); }
 .admin-view-store:hover .admin-view-store-arrow { transform: rotate(135deg) translate(-2px, 0); }
 .admin-view-store + .admin-sidebar-bottom { margin-top: 0; }
+
+/* Product photo uploads */
+.admin-product-submit { margin-top: 18px; }
+.admin-product-heading { margin: 0 0 16px; color: #0c1a32; font-size: 16px; }
+.admin-product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.admin-product-card { margin: 0; overflow: hidden; border: 1px solid #dde3ec; background: #f6f8fb; }
+.admin-product-card img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.admin-product-card figcaption { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; color: #0c1a32; font-size: 12px; font-weight: 600; }
+.admin-product-card figcaption span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-product-card button { display: grid; place-items: center; flex: none; width: 30px; height: 30px; color: #c2410c; background: white; border: 1px solid #f1c6ad; cursor: pointer; }
+.admin-product-msg { margin: 14px 0 0; padding: 10px 12px; font-size: 13px; }
+.admin-product-msg.is-ok { color: #166534; background: #dcfce7; }
+.admin-product-msg.is-error { color: #9a3412; background: #ffedd5; }
+.admin-spin { animation: admin-spin 1s linear infinite; }
+@keyframes admin-spin { to { transform: rotate(360deg); } }

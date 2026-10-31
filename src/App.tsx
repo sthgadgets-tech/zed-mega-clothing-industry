@@ -1,14 +1,16 @@
 import { lazy, Suspense, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
-import { Link, Route, Routes } from 'react-router-dom'
+import { Link, Route, Routes, useLocation, useParams, useSearchParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, CheckCircle2, ChevronDown, ChevronRight, Clock, Globe2, Hash, Layers, Mail, MessageCircle, PackageCheck, Palette, Phone, Printer, Scissors, ShieldCheck, Sparkles, Tag, X } from 'lucide-react'
 import { cn } from './lib/cn'
 import { HeaderAnnouncementBar } from './components/HeaderAnnouncementBar'
-import { ProductCarousel } from './components/ProductCarousel'
+import { ProductCarousel, showcaseProducts } from './components/ProductCarousel'
 import { WhatsAppButton } from './components/WhatsAppButton'
 import { ScrollToTop } from './components/ScrollToTop'
 import { SocialLinks } from './components/SocialLinks'
+import { ShippingFlags } from './components/ShippingFlags'
 import { CONTACT_EMAIL, inquiryMailto } from './lib/email'
+import { activewear, sports } from './lib/categories'
 import './styles.css'
 import './quote.css'
 
@@ -19,12 +21,11 @@ const RequireAdmin = lazy(() => import('./admin/AdminLogin').then((m) => ({ defa
 const AdminDashboard = lazy(() => import('./admin/AdminDashboard').then((m) => ({ default: m.AdminDashboard })))
 const AdminHomepageEditor = lazy(() => import('./admin/AdminHomepageEditor').then((m) => ({ default: m.AdminHomepageEditor })))
 const AdminCategories = lazy(() => import('./admin/AdminCategories').then((m) => ({ default: m.AdminCategories })))
+const AdminProducts = lazy(() => import('./admin/AdminProducts').then((m) => ({ default: m.AdminProducts })))
 const AdminMedia = lazy(() => import('./admin/AdminMedia').then((m) => ({ default: m.AdminMedia })))
 const AdminFaq = lazy(() => import('./admin/AdminFaq').then((m) => ({ default: m.AdminFaq })))
 const AdminSettings = lazy(() => import('./admin/AdminSettings').then((m) => ({ default: m.AdminSettings })))
 
-const sports = ['American Football', 'Baseball', 'Basketball', 'Soccer', 'Rugby', 'Ice Hockey', 'Cricket', 'Cycling', 'Golf', 'Tennis', 'Cheerleading']
-const activewear = ['Hoodies', 'Jackets', 'Sports Bras', 'Leggings', 'Sweatshirts', 'T-Shirts', 'Shorts', 'Joggers', 'Tracksuits', 'Streetwear']
 const audiences = [
   ['01', 'Sportswear brands', 'Private-label collections, produced around your fit, identity, and commercial calendar.'],
   ['02', 'Teamwear companies', 'Reliable kit programs for teams that need consistency across every season.'],
@@ -71,6 +72,9 @@ const categoryImages: Record<string, string> = {
   Streetwear: '/images/products/product-51.webp',
 }
 
+const slugify = (name: string) => name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+const categoryPath = (name: string) => `/category/${slugify(name)}`
+
 function SectionLabel({ children, light = false }: { children: ReactNode; light?: boolean }) {
   return <p className={cn('section-label', light && 'section-label-light')}><span />{children}</p>
 }
@@ -87,10 +91,10 @@ function Logo({ light = true }: { light?: boolean }) {
 }
 
 const navLinks = [
-  ['#showcase', 'Showcase'],
-  ['#manufacturing', 'Manufacturing'],
-  ['#about', 'About us'],
-  ['#faq', 'FAQs'],
+  ['/#showcase', 'Showcase'],
+  ['/#manufacturing', 'Manufacturing'],
+  ['/#about', 'About us'],
+  ['/#faq', 'FAQs'],
 ] as const
 
 function Header() {
@@ -110,9 +114,9 @@ function Header() {
 
   // Highlight the nav link for the section currently in view.
   useEffect(() => {
-    const ids = ['categories', ...navLinks.map(([hash]) => hash.slice(1))]
+    const ids = ['categories', ...navLinks.map(([hash]) => hash.slice(2))]
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => { if (entry.isIntersecting) setActiveHash(`#${entry.target.id}`) })
+      entries.forEach((entry) => { if (entry.isIntersecting) setActiveHash(`/#${entry.target.id}`) })
     }, { rootMargin: '-45% 0px -50% 0px' })
     ids.forEach((id) => { const el = document.getElementById(id); if (el) observer.observe(el) })
     return () => observer.disconnect()
@@ -139,25 +143,26 @@ function Header() {
       <div className="container header-inner">
         <Logo />
         <nav className={cn('desktop-nav', open && 'nav-open')} aria-label="Main">
+          <div className="nav-drawer-head"><div onClick={close}><Logo /></div><button type="button" className="nav-drawer-close" onClick={close} aria-label="Close navigation"><X size={22} /></button></div>
           <div className="nav-pill">
             {([['Sportswear', sports], ['Activewear', activewear]] as const).map(([label, items]) => (
               <div className={cn('nav-dropdown', menu === label && 'is-active')} key={label} onMouseEnter={() => window.matchMedia('(hover: hover)').matches && setMenu(label)} onMouseLeave={() => { if (window.matchMedia('(hover: hover)').matches) { setMenu(null); setPreview(null) } }}>
-                <button onClick={() => { setMenu(menu === label ? null : label); setPreview(null) }} aria-expanded={menu === label} className={cn(activeHash === '#categories' && 'is-current')}>{label} <ChevronDown size={14} /></button>
+                <button onClick={() => { setMenu(menu === label ? null : label); setPreview(null) }} aria-expanded={menu === label} className={cn(activeHash === '/#categories' && 'is-current')}>{label} <ChevronDown size={14} /></button>
                 <AnimatePresence>{menu === label && (
                   <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: .18 }} className="mega-panel">
                     <div className="mega-list">
                       <div className="mega-head"><strong>{label}</strong><span>{items.length} categories</span></div>
                       <div className="mega-grid">
                         {items.map((item, index) => (
-                          <a href="#categories" key={item} onClick={close} onMouseEnter={() => setPreview(item)} onFocus={() => setPreview(item)} className={cn('mega-item', (preview ?? items[0]) === item && 'is-previewed')}>
+                          <Link to={categoryPath(item)} key={item} onClick={close} onMouseEnter={() => setPreview(item)} onFocus={() => setPreview(item)} className={cn('mega-item', (preview ?? items[0]) === item && 'is-previewed')}>
                             <span className="mega-index">{String(index + 1).padStart(2, '0')}</span>
                             <span className="mega-name">{item}</span>
                             <ArrowRight size={14} className="mega-arrow" />
-                          </a>
+                          </Link>
                         ))}
                       </div>
                     </div>
-                    <a href="#categories" onClick={close} className="mega-feature">
+                    <Link to={categoryPath(preview ?? items[0])} onClick={close} className="mega-feature">
                       <AnimatePresence mode="wait">
                         <motion.span key={preview ?? items[0]} className="mega-feature-img" style={{ backgroundImage: `url(${categoryImages[preview ?? items[0]]})` }} initial={{ opacity: 0, scale: 1.08 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: .35 }} />
                       </AnimatePresence>
@@ -165,9 +170,9 @@ function Header() {
                         <small>Custom {label.toLowerCase()}</small>
                         <strong>{preview ?? items[0]}</strong>
                         <span>Your design · MOQ 50 pieces · 7-day samples</span>
-                        <em>Get a quote <ArrowRight size={14} /></em>
+                        <em>View products <ArrowRight size={14} /></em>
                       </span>
-                    </a>
+                    </Link>
                   </motion.div>
                 )}</AnimatePresence>
               </div>
@@ -183,6 +188,7 @@ function Header() {
             <SocialLinks />
           </div>
         </nav>
+        {open && <button type="button" className="nav-backdrop" onClick={close} aria-label="Close navigation" tabIndex={-1} />}
         <button className="mobile-toggle" onClick={() => setOpen(!open)} aria-expanded={open} aria-label={open ? 'Close navigation' : 'Open navigation'}>
           <span /><span /><span />
         </button>
@@ -249,12 +255,7 @@ function Audience() {
         </div>
         <div className="audience-grid">
           <div className="audience-image">
-            <img loading="lazy" decoding="async" src="/images/products/product-19.webp" alt="ZED MEGA Custom Apparel Manufacturing" />
-            <div className="image-note">
-              <Sparkles size={18} />
-              <span>Designed in partnership<br /><b>with your team</b></span>
-            </div>
-          </div>
+            <img loading="lazy" decoding="async" src="/images/products/product-19.webp" alt="ZED MEGA Custom Apparel Manufacturing" />          </div>
           <div className="audience-cards">
             {audiences.map(([number, title, text]) => (
               <motion.a whileHover={{ x: 5 }} href="/quote" className="audience-card" key={number}>
@@ -421,14 +422,14 @@ function Testimonials() {
 
 function CategoryCard({ name }: { name: string }) {
   return (
-    <a
+    <Link
       className="category-card"
-      href="/quote"
+      to={categoryPath(name)}
       style={{ backgroundImage: `linear-gradient(180deg, rgba(6,19,43,.15), rgba(6,19,43,.92)), url(${categoryImages[name]})` }}
     >
       <span>{name}</span>
       <ArrowRight size={17} />
-    </a>
+    </Link>
   )
 }
 
@@ -465,6 +466,92 @@ function Categories() {
       <div className="red-accent red-accent-left" />
     </section>
   )
+}
+
+type CatalogItem = { id: string; title: string; image: string; description: string; moq: string }
+
+function CategoryPage() {
+  const { slug } = useParams()
+  const { pathname } = useLocation()
+  const name = [...sports, ...activewear].find((item) => slugify(item) === slug)
+
+  useEffect(() => { window.scrollTo(0, 0) }, [pathname])
+  const [uploaded, setUploaded] = useState<CatalogItem[]>([])
+
+  // Photos added from the admin panel (/admin/products) show before the built-in designs.
+  useEffect(() => {
+    setUploaded([])
+    if (!name) return
+    let active = true
+    fetch(`/api/products?category=${encodeURIComponent(name)}`)
+      .then((response) => response.ok ? response.json() : { products: [] })
+      .then((data: { products?: CatalogItem[] }) => { if (active) setUploaded(data.products ?? []) })
+      .catch(() => {})
+    return () => { active = false }
+  }, [name])
+
+  if (!name) {
+    return <><Header /><main className="catalog-page"><div className="container catalog-empty"><h1>Category not found</h1><a className="button button-red" href="/#categories">Browse categories <ArrowRight size={17} /></a></div></main><Footer /></>
+  }
+
+  const group = sports.includes(name) ? 'Sportswear' : 'Activewear'
+  const listed: CatalogItem[] = [...uploaded, ...showcaseProducts.filter((product) => product.category === name)]
+  // Categories without showcase items yet still get one card built from their cover image.
+  const products = listed.length ? listed : [{ id: slugify(name), title: `Custom ${name}`, image: categoryImages[name], description: `${name} made to your design, fabric, and branding.`, moq: 'MOQ 50 PCS' }]
+  const quoteHref = `/quote?product=${encodeURIComponent(name)}`
+
+  return <>
+    <Header />
+    <main className="catalog-page">
+      <section className="catalog-hero" style={{ backgroundImage: `linear-gradient(90deg, rgba(6,19,43,.96) 30%, rgba(6,19,43,.55)), url(${categoryImages[name]})` }}>
+        <div className="container">
+          <p className="catalog-crumbs"><Link to="/">Home</Link><ChevronRight size={13} /><a href="/#categories">{group}</a><ChevronRight size={13} /><span>{name}</span></p>
+          <h1>{name}</h1>
+          <p>Custom {name.toLowerCase()} manufactured in Sialkot to your design. MOQ 50 pieces, samples in about 7 days.</p>
+        </div>
+      </section>
+
+      <div className="container catalog-layout">
+        <aside className="catalog-sidebar" aria-label="Categories">
+          {([['Sportswear', sports], ['Activewear', activewear]] as const).map(([label, items]) => (
+            <div className="catalog-group" key={label}>
+              <h2>{label}</h2>
+              <nav>
+                {items.map((item) => (
+                  <Link key={item} to={categoryPath(item)} className={cn(item === name && 'is-active')} aria-current={item === name ? 'page' : undefined}>
+                    <img src={categoryImages[item]} alt="" loading="lazy" decoding="async" /><span><b>{item}</b><small>{showcaseProducts.filter((p) => p.category === item).length || 1} designs</small></span><ChevronRight size={15} />
+                  </Link>
+                ))}
+              </nav>
+            </div>
+          ))}
+        </aside>
+
+        <section className="catalog-main">
+          <div className="catalog-toolbar">
+            <span>{String(products.length).padStart(2, '0')} {products.length === 1 ? 'design' : 'designs'}</span>
+            <Link className="text-link" to={quoteHref}>Request a quote <ArrowRight size={15} /></Link>
+          </div>
+          <div className="catalog-grid">
+            {products.map((product) => (
+              <article className="catalog-card" key={product.id}>
+                <div className="catalog-card-img"><img src={product.image} alt={product.title} loading="lazy" decoding="async" /><span>{product.moq}</span></div>
+                <div className="catalog-card-body">
+                  <h3>{product.title}</h3>
+                  <p>{product.description}</p>
+                  <div className="catalog-card-actions">
+                    <Link className="button button-red" to={quoteHref}>Get a quote <ArrowRight size={15} /></Link>
+                    <a className="catalog-wa" href={`https://wa.me/923286250355?text=${encodeURIComponent(`Hi ZED MEGA, I'm interested in: ${product.title}`)}`} target="_blank" rel="noreferrer" aria-label={`Ask about ${product.title} on WhatsApp`}><MessageCircle size={17} /></a>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      </div>
+    </main>
+    <Footer />
+  </>
 }
 
 function Manufacturing() {
@@ -522,6 +609,7 @@ function Shipping() {
           </div>
         </div>
       </div>
+      <div className="container"><ShippingFlags /></div>
       <div className="red-accent red-accent-left" />
     </section>
   )
@@ -661,15 +749,25 @@ function QuoteCTA() {
 }
 
 function Footer() {
-  return <><ScrollToTop /><WhatsAppButton /><footer className="site-footer"><div className="container"><div className="footer-top"><div><Logo /><p className="footer-blurb">Custom sportswear and private-label activewear from Sialkot, Pakistan. Made around your design.</p><SocialLinks /></div><div className="footer-links"><div><h4>Products</h4><a href="#categories">Team uniforms</a><a href="#categories">Tracksuits</a><a href="#categories">Hoodies & sweatshirts</a><a href="#categories">Cheerleading</a><a href="#categories">Streetwear</a></div><div><h4>Explore</h4><a href="#showcase">Showcase</a><a href="#categories">Sportswear</a><a href="#categories">Activewear</a><a href="#manufacturing">Manufacturing</a><a href="#about">About us</a></div><div><h4>Contact</h4><a href={inquiryMailto()}><Mail size={14} /> zhr.zedmega@gmail.com</a><a href="https://wa.me/923286250355"><Phone size={14} /> +92 328 625 0355</a><span><Globe2 size={14} /> Sharay Da Koat, Jaserwala, Daska, Sialkot, Pakistan</span></div></div></div><div className="footer-bottom"><span>© 2026 ZED MEGA Clothing Industry</span><span>Member, Sialkot Chamber of Commerce</span><span>Since 2015</span></div></div></footer></>
+  return <><ScrollToTop /><WhatsAppButton /><footer className="site-footer"><div className="container"><div className="footer-top"><div><Logo /><p className="footer-blurb">Custom sportswear and private-label activewear from Sialkot, Pakistan. Made around your design.</p><SocialLinks /></div><div className="footer-links"><div><h4>Products</h4><a href="/#categories">Team uniforms</a><a href="/#categories">Tracksuits</a><a href="/#categories">Hoodies & sweatshirts</a><a href="/#categories">Cheerleading</a><a href="/#categories">Streetwear</a></div><div><h4>Explore</h4><a href="/#showcase">Showcase</a><a href="/#categories">Sportswear</a><a href="/#categories">Activewear</a><a href="/#manufacturing">Manufacturing</a><a href="/#about">About us</a></div><div><h4>Contact</h4><a href={inquiryMailto()}><Mail size={14} /> zhr.zedmega@gmail.com</a><a href="https://wa.me/923286250355"><Phone size={14} /> +92 328 625 0355</a><span><Globe2 size={14} /> Sharay Da Koat, Jaserwala, Daska, Sialkot, Pakistan</span></div></div></div><div className="footer-bottom"><span>© 2026 ZED MEGA Clothing Industry</span><span>Member, Sialkot Chamber of Commerce</span><span>Since 2015</span></div></div></footer></>
 }
 
-function Home() { return <><Header /><main><Hero /><ProductCarousel /><Audience /><Ordering /><Specification /><Testimonials /><Categories /><Manufacturing /><Shipping /><FAQ /><Blog /><QuoteCTA /></main><Footer /></> }
+function Home() {
+  // Arriving from another page via /#section: scroll there once the sections have rendered.
+  useEffect(() => {
+    const id = window.location.hash.slice(1)
+    if (!id) return
+    const timer = window.setTimeout(() => document.getElementById(decodeURIComponent(id))?.scrollIntoView(), 120)
+    return () => window.clearTimeout(timer)
+  }, [])
+  return <><Header /><main><Hero /><ProductCarousel /><Audience /><Ordering /><Specification /><Testimonials /><Categories /><Manufacturing /><Shipping /><FAQ /><Blog /><QuoteCTA /></main><Footer /></>
+}
 function QuoteField({ label, error, children }: { label: string; error?: string; children: ReactNode }) {
   return <label className="quote-field"><span>{label}</span>{children}{error && <small className="quote-error" role="alert">{error}</small>}</label>
 }
 
 function QuotePage() {
+  const [searchParams] = useSearchParams()
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
   const [serverError, setServerError] = useState('')
@@ -792,7 +890,7 @@ function QuotePage() {
             </div>
             <div className="quote-row">
               <QuoteField label="Product Category *" error={errors.product}>
-                <select name="product" defaultValue="" aria-invalid={!!errors.product}>
+                <select name="product" defaultValue={[...sports, ...activewear].includes(searchParams.get('product') ?? '') ? searchParams.get('product')! : ''} aria-invalid={!!errors.product}>
                   <option value="" disabled>Select a product category</option>
                   <optgroup label="Team Sportswear">{sports.map((item) => <option key={item}>{item}</option>)}</optgroup>
                   <optgroup label="Custom Activewear">{activewear.map((item) => <option key={item}>{item}</option>)}</optgroup>
@@ -865,11 +963,13 @@ export default function App() {
   return <Suspense fallback={null}><Routes>
     <Route path="/" element={<Home />} />
     <Route path="/quote" element={<QuotePage />} />
+    <Route path="/category/:slug" element={<CategoryPage />} />
     <Route path="/admin/login" element={<AdminLogin />} />
     <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
       <Route index element={<AdminDashboard />} />
       <Route path="homepage" element={<AdminHomepageEditor />} />
       <Route path="categories" element={<AdminCategories />} />
+      <Route path="products" element={<AdminProducts />} />
       <Route path="media" element={<AdminMedia />} />
       <Route path="faq" element={<AdminFaq />} />
       <Route path="settings" element={<AdminSettings />} />
