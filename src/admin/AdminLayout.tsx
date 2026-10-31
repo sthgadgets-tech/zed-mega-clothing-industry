@@ -97,10 +97,10 @@ export function AdminLayout() {
       </header>
       <div className="admin-warning" role="note">
         <AlertTriangle size={18} />
-        <span><strong>Local preview only.</strong> The sign-in is a browser-side gate, not server security. There is no cloud persistence or public publishing. Drafts are stored in this browser only.</span>
+        <span><strong>Live:</strong> sign-in, product photos and quote alerts are saved on the server. <strong>Draft only:</strong> Homepage, Categories, Media, FAQ and Settings edits stay in this browser and do not change the public site yet.</span>
       </div>
       <main className="admin-content"><Outlet context={context} /></main>
-      <footer className="admin-footer"><span>Demo data · Browser local storage</span><span>Not connected to the public website</span></footer>
+      <footer className="admin-footer"><span>Product photos &amp; quotes · MongoDB</span><span>Content drafts · this browser only</span></footer>
     </div>
   </div>
 }
